@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
+import type { Anlegg } from '@/lib/supabase'
 
 export default function AdminPage() {
   const [navn, setNavn] = useState('')
@@ -10,7 +11,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [newAnlegg, setNewAnlegg] = useState<any>(null)
+  const [newAnlegg, setNewAnlegg] = useState<Anlegg | null>(null)
 
   const generateUniqueCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -114,7 +115,7 @@ export default function AdminPage() {
               <div>
                 <p className="text-sm font-medium text-gray-500">QR-kode:</p>
                 <div className="p-4 bg-white inline-block">
-                  <QRCode value={newAnlegg.qr_url} />
+                  <QRCode value={newAnlegg.qr_url ?? ''} />
                 </div>
               </div>
             </div>
