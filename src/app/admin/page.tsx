@@ -25,7 +25,7 @@ export default function AdminPage() {
 
     try {
       const unik_kode = generateUniqueCode()
-      const qr_url = `${window.location.origin}/login?kode=${unik_kode}`
+      const qr_url = `${window.location.origin}/registrer-hendelse?kode=${unik_kode}`
 
       const { data, error } = await supabase
         .from('anlegg')
