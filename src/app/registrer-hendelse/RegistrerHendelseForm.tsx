@@ -126,9 +126,9 @@ export default function RegistrerHendelseForm() {
         ) : (
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block font-medium mb-1">Hendelsestype</label>
+              <label className="block font-medium mb-1 text-gray-900">Hendelsestype</label>
               <select
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
                 value={type}
                 onChange={e => setType(e.target.value)}
               >
@@ -139,25 +139,25 @@ export default function RegistrerHendelseForm() {
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="block font-medium mb-1">Dato</label>
-                <input type="date" className="w-full border rounded px-3 py-2" value={dato} onChange={e => setDato(e.target.value)} required />
+                <label className="block font-medium mb-1 text-gray-900">Dato</label>
+                <input type="date" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={dato} onChange={e => setDato(e.target.value)} required />
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">Tid</label>
-                <input type="time" className="w-full border rounded px-3 py-2" value={tid} onChange={e => setTid(e.target.value)} required />
+                <label className="block font-medium mb-1 text-gray-900">Tid</label>
+                <input type="time" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={tid} onChange={e => setTid(e.target.value)} required />
               </div>
             </div>
             {(type === 'brannalarm' || type === 'forvarsel' || type === 'utkobling') && (
               <div>
-                <label className="block font-medium mb-1">Enhet <span title="Enhet som har meldt om alarm eller forvarsel, eks. 01.001">ℹ️</span></label>
-                <input type="text" className="w-full border rounded px-3 py-2" value={enhet} onChange={e => setEnhet(e.target.value)} required />
+                <label className="block font-medium mb-1 text-gray-900">Enhet <span title="Enhet som har meldt om alarm eller forvarsel, eks. 01.001">ℹ️</span></label>
+                <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={enhet} onChange={e => setEnhet(e.target.value)} required />
               </div>
             )}
             {type === 'utkobling' && (
               <div>
-                <label className="block font-medium mb-1">Sløyfe/Sone</label>
-                <input type="text" className="w-full border rounded px-3 py-2" value={sloyfeSone} onChange={e => setSloyfeSone(e.target.value)} />
-                <div className="flex items-center gap-2 mt-2">
+                <label className="block font-medium mb-1 text-gray-900">Sløyfe/Sone</label>
+                <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={sloyfeSone} onChange={e => setSloyfeSone(e.target.value)} />
+                <div className="flex items-center gap-2 mt-2 text-gray-900">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" checked={utkoblingUendelig} onChange={e => setUtkoblingUendelig(e.target.checked)} />
                     Koblet ut uendelig
@@ -177,8 +177,8 @@ export default function RegistrerHendelseForm() {
             )}
             {type === 'feil' && (
               <div>
-                <label className="block font-medium mb-1">Type feil</label>
-                <select className="w-full border rounded px-3 py-2" value={feiltype} onChange={e => setFeiltype(e.target.value)} required>
+                <label className="block font-medium mb-1 text-gray-900">Type feil</label>
+                <select className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={feiltype} onChange={e => setFeiltype(e.target.value)} required>
                   <option value="">Velg type</option>
                   {FEIL_TYPER.map(opt => (
                     <option key={opt} value={opt}>{opt}</option>
@@ -187,16 +187,16 @@ export default function RegistrerHendelseForm() {
               </div>
             )}
             <div>
-              <label className="block font-medium mb-1">Årsak</label>
-              <input type="text" className="w-full border rounded px-3 py-2" value={arsak} onChange={e => setArsak(e.target.value)} required />
+              <label className="block font-medium mb-1 text-gray-900">Årsak</label>
+              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={arsak} onChange={e => setArsak(e.target.value)} required />
             </div>
             <div>
-              <label className="block font-medium mb-1">Registrert av</label>
-              <input type="text" className="w-full border rounded px-3 py-2" value={registrertAv} onChange={e => setRegistrertAv(e.target.value)} required />
+              <label className="block font-medium mb-1 text-gray-900">Registrert av</label>
+              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={registrertAv} onChange={e => setRegistrertAv(e.target.value)} required />
             </div>
             <div>
-              <label className="block font-medium mb-1">Kommentar</label>
-              <textarea className="w-full border rounded px-3 py-2" value={kommentar} onChange={e => setKommentar(e.target.value)} />
+              <label className="block font-medium mb-1 text-gray-900">Kommentar</label>
+              <textarea className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={kommentar} onChange={e => setKommentar(e.target.value)} />
             </div>
             {error && <div className="text-red-500 text-center">{error}</div>}
             <button
