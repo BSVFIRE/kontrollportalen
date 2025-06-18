@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -44,22 +44,35 @@ export default function RegistrerHendelseForm() {
 
   // Hent anlegg_id basert på unik kode
   const [anleggId, setAnleggId] = useState<string | null>(null)
-  useState(() => {
+  useEffect(() => {
     if (anleggKode) {
       supabase
         .from('anlegg')
         .select('id')
         .eq('unik_kode', anleggKode)
         .single()
-        .then(({ data }) => setAnleggId(data?.id ?? null))
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Error fetching anlegg:', error)
+            setError('Kunne ikke hente anlegg informasjon')
+            return
+          }
+          setAnleggId(data?.id ?? null)
+        })
     }
-  })
+  }, [anleggKode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess(false)
+
+    if (!anleggId) {
+      setError('Kunne ikke finne anlegg ID')
+      setLoading(false)
+      return
+    }
 
     // Kombiner dato og tid til timestamp
     const tidspunkt = dato && tid ? `${dato}T${tid}` : null
@@ -82,7 +95,10 @@ export default function RegistrerHendelseForm() {
 
     try {
       const { error } = await supabase.from('hendelser').insert([payload])
-      if (error) throw error
+      if (error) {
+        console.error('Database error:', error)
+        throw new Error(error.message || 'Kunne ikke registrere hendelse')
+      }
       setSuccess(true)
       // Nullstill skjema
       setDato('')
