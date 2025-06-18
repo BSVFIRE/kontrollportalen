@@ -9,6 +9,10 @@ const HENDELSE_TYPER = [
   { value: 'forvarsel', label: 'Forvarsel' },
   { value: 'feil', label: 'Feil' },
   { value: 'utkobling', label: 'Utkobling' },
+  { value: 'egenkontroll', label: 'Egenkontroll' },
+  { value: 'avvik', label: 'Avvik' },
+  { value: 'kontroll', label: 'Kontroll' },
+  { value: 'utbedringer', label: 'Utbedringer' },
 ]
 
 const FEIL_TYPER = [
