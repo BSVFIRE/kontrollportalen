@@ -226,6 +226,13 @@ export default function RegistrerHendelseForm() {
             >
               {loading ? 'Sender...' : 'Registrer hendelse'}
             </button>
+            <button
+              type="button"
+              className="w-full py-2 px-4 rounded bg-gray-200 text-gray-800 font-semibold mt-2"
+              onClick={() => router.push(`/logg?kode=${anleggKode}`)}
+            >
+              Gå til hendelseslogg
+            </button>
           </form>
         )}
       </div>
