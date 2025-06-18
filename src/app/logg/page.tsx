@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type Hendelse = {
+  id: string;
+  tidspunkt: string | null;
+  type: string;
+  arsak: string | null;
+  registrert_av: string | null;
+  kommentar: string | null;
+};
+
 export default function LoggPage() {
   const searchParams = useSearchParams();
   const anleggKode = searchParams.get("kode") || "";
-  const [hendelser, setHendelser] = useState<any[]>([]);
+  const [hendelser, setHendelser] = useState<Hendelse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,7 +44,7 @@ export default function LoggPage() {
           .order("tidspunkt", { ascending: false });
         if (hendelserError) throw hendelserError;
         setHendelser(data || []);
-      } catch (err) {
+      } catch {
         setError("Kunne ikke hente hendelser");
       } finally {
         setLoading(false);
