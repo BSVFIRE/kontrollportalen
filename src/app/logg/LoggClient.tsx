@@ -15,6 +15,7 @@ type Hendelse = {
   enhet?: string | null;
   utkobling_tid?: number | null;
   utkobling_uendelig?: boolean | null;
+  firma?: string | null;
 };
 
 export default function LoggClient() {
@@ -43,7 +44,7 @@ export default function LoggClient() {
         // Hent hendelser for anlegg_id
         const { data, error: hendelserError } = await supabase
           .from("hendelser")
-          .select("id, tidspunkt, type, arsak, registrert_av, kommentar, feiltype, enhet, utkobling_tid, utkobling_uendelig")
+          .select("id, tidspunkt, type, arsak, registrert_av, kommentar, feiltype, enhet, utkobling_tid, utkobling_uendelig, firma")
           .eq("anlegg_id", anlegg.id)
           .order("tidspunkt", { ascending: false });
         if (hendelserError) throw hendelserError;
@@ -77,12 +78,13 @@ export default function LoggClient() {
                   <th className="px-3 py-2 border">Enhet</th>
                   <th className="px-3 py-2 border">Utkobling tid</th>
                   <th className="px-3 py-2 border">Utkobling uendelig</th>
+                  <th className="px-3 py-2 border">Firma</th>
                 </tr>
               </thead>
               <tbody>
                 {hendelser.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-4">Ingen hendelser funnet.</td>
+                    <td colSpan={10} className="text-center py-4">Ingen hendelser funnet.</td>
                   </tr>
                 ) : (
                   hendelser.map((h, idx) => (
@@ -96,6 +98,7 @@ export default function LoggClient() {
                       <td className="border px-3 py-2">{h.enhet || ""}</td>
                       <td className="border px-3 py-2">{h.utkobling_tid !== undefined && h.utkobling_tid !== null ? h.utkobling_tid + " min" : ""}</td>
                       <td className="border px-3 py-2">{h.utkobling_uendelig === true ? "Ja" : h.utkobling_uendelig === false ? "Nei" : ""}</td>
+                      <td className="border px-3 py-2">{h.firma || ""}</td>
                     </tr>
                   ))
                 )}

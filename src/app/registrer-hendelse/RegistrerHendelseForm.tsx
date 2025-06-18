@@ -45,6 +45,7 @@ export default function RegistrerHendelseForm() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [firma, setFirma] = useState('')
 
   // Hent anlegg_id basert på unik kode
   const [anleggId, setAnleggId] = useState<string | null>(null)
@@ -100,6 +101,7 @@ export default function RegistrerHendelseForm() {
       arsak,
       registrert_av: registrertAv,
       kommentar,
+      firma: (type === 'kontroll' || type === 'utbedringer') ? firma : undefined,
     }
     if (type === 'feil') payload.feiltype = feiltype
     if (type === 'utkobling') {
@@ -126,6 +128,7 @@ export default function RegistrerHendelseForm() {
       setSloyfeSone('')
       setUtkoblingTid('')
       setUtkoblingUendelig(false)
+      setFirma('')
     } catch (err) {
       setError('Kunne ikke registrere hendelse')
       console.error(err)
@@ -229,6 +232,12 @@ export default function RegistrerHendelseForm() {
               <label className="block font-medium mb-1 text-gray-900">Kommentar</label>
               <textarea className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={kommentar} onChange={e => setKommentar(e.target.value)} />
             </div>
+            { (type === 'kontroll' || type === 'utbedringer') && (
+              <div>
+                <label className="block font-medium mb-1 text-gray-900">Firma</label>
+                <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={firma} onChange={e => setFirma(e.target.value)} required={type === 'kontroll' || type === 'utbedringer'} />
+              </div>
+            )}
             {error && <div className="text-red-500 text-center">{error}</div>}
             <button
               type="submit"
