@@ -56,14 +56,14 @@ export default function LoggClient() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-3xl w-full p-8 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6 text-center">Hendelseslogg</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Hendelseslogg</h1>
         {loading && <div>Laster hendelser...</div>}
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {!loading && !error && (
           <div className="overflow-x-auto">
-            <table className="min-w-full border text-sm">
+            <table className="min-w-full border text-sm text-gray-900">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-200 text-gray-900 font-semibold">
                   <th className="px-3 py-2 border">Tidspunkt</th>
                   <th className="px-3 py-2 border">Type</th>
                   <th className="px-3 py-2 border">Årsak</th>
@@ -77,8 +77,8 @@ export default function LoggClient() {
                     <td colSpan={5} className="text-center py-4">Ingen hendelser funnet.</td>
                   </tr>
                 ) : (
-                  hendelser.map((h) => (
-                    <tr key={h.id}>
+                  hendelser.map((h, idx) => (
+                    <tr key={h.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="border px-3 py-2">{h.tidspunkt ? new Date(h.tidspunkt).toLocaleString() : ""}</td>
                       <td className="border px-3 py-2">{h.type}</td>
                       <td className="border px-3 py-2">{h.arsak}</td>
