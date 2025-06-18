@@ -66,6 +66,17 @@ export default function RegistrerHendelseForm() {
     }
   }, [anleggKode])
 
+  // Sett initialverdier for dato og tid til nåværende tidspunkt
+  useEffect(() => {
+    const now = new Date();
+    // yyyy-mm-dd
+    const dateStr = now.toISOString().slice(0, 10);
+    // hh:mm (24-timers)
+    const timeStr = now.toTimeString().slice(0, 5);
+    setDato(dateStr);
+    setTid(timeStr);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -164,7 +175,7 @@ export default function RegistrerHendelseForm() {
               </div>
               <div className="flex-1">
                 <label className="block font-medium mb-1 text-gray-900">Tid</label>
-                <input type="time" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={tid} onChange={e => setTid(e.target.value)} required />
+                <input type="time" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={tid} onChange={e => setTid(e.target.value)} required step="60" />
               </div>
             </div>
             {(type === 'brannalarm' || type === 'forvarsel' || type === 'utkobling') && (
