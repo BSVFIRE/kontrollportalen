@@ -64,7 +64,7 @@ export default function RegistrerHendelse() {
     // Kombiner dato og tid til timestamp
     const tidspunkt = dato && tid ? `${dato}T${tid}` : null
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       anlegg_id: anleggId,
       type,
       tidspunkt,
@@ -97,6 +97,7 @@ export default function RegistrerHendelse() {
       setUtkoblingUendelig(false)
     } catch (err) {
       setError('Kunne ikke registrere hendelse')
+      console.error(err)
     } finally {
       setLoading(false)
     }
