@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function Home() {
   const [kode, setKode] = useState('')
   const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,8 +23,7 @@ export default function Home() {
       if (error) throw error
 
       if (anlegg) {
-        // TODO: Implement session management
-        console.log('Innlogget som:', anlegg.navn)
+        router.push(`/registrer-hendelse?kode=${kode}`)
       } else {
         setError('Ugyldig kode')
       }
