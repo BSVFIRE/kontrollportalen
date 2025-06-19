@@ -16,14 +16,33 @@ type Hendelse = {
   utkobling_tid?: number | null;
   utkobling_uendelig?: boolean | null;
   firma?: string | null;
+  anleggs_type?: string | null;
 };
+
+const HENDELSE_TYPER = [
+  { value: 'alle', label: 'Alle typer' },
+  { value: 'brannalarm', label: 'Brannalarm' },
+  { value: 'forvarsel', label: 'Forvarsel' },
+  { value: 'feil', label: 'Feil' },
+  { value: 'utkobling', label: 'Utkobling' },
+  { value: 'egenkontroll', label: 'Egenkontroll' },
+  { value: 'avvik', label: 'Avvik' },
+  { value: 'kontroll', label: 'Kontroll' },
+  { value: 'utbedringer', label: 'Utbedringer' },
+];
 
 export default function LoggClient() {
   const searchParams = useSearchParams();
   const anleggKode = searchParams.get("kode") || "";
   const [hendelser, setHendelser] = useState<Hendelse[]>([]);
+  const [filteredHendelser, setFilteredHendelser] = useState<Hendelse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // Filter states
+  const [selectedYear, setSelectedYear] = useState<string>('alle');
+  const [selectedType, setSelectedType] = useState<string>('alle');
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchHendelser = async () => {
@@ -44,7 +63,7 @@ export default function LoggClient() {
         // Hent hendelser for anlegg_id
         const { data, error: hendelserError } = await supabase
           .from("hendelser")
-          .select("id, tidspunkt, type, arsak, registrert_av, kommentar, feiltype, enhet, utkobling_tid, utkobling_uendelig, firma")
+          .select("id, tidspunkt, type, arsak, registrert_av, kommentar, feiltype, enhet, utkobling_tid, utkobling_uendelig, firma, anleggs_type")
           .eq("anlegg_id", anlegg.id)
           .order("tidspunkt", { ascending: false });
         if (hendelserError) throw hendelserError;
@@ -58,10 +77,79 @@ export default function LoggClient() {
     if (anleggKode) fetchHendelser();
   }, [anleggKode]);
 
+  // Oppdater tilgjengelige år når hendelser endres
+  useEffect(() => {
+    const years = new Set<string>();
+    hendelser.forEach(hendelse => {
+      if (hendelse.tidspunkt) {
+        const year = new Date(hendelse.tidspunkt).getFullYear().toString();
+        years.add(year);
+      }
+    });
+    const sortedYears = Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
+    setAvailableYears(sortedYears);
+  }, [hendelser]);
+
+  // Filtrer hendelser basert på valgte filtre
+  useEffect(() => {
+    let filtered = hendelser;
+
+    // Filtrer på år
+    if (selectedYear !== 'alle') {
+      filtered = filtered.filter(hendelse => {
+        if (!hendelse.tidspunkt) return false;
+        const year = new Date(hendelse.tidspunkt).getFullYear().toString();
+        return year === selectedYear;
+      });
+    }
+
+    // Filtrer på type
+    if (selectedType !== 'alle') {
+      filtered = filtered.filter(hendelse => hendelse.type === selectedType);
+    }
+
+    setFilteredHendelser(filtered);
+  }, [hendelser, selectedYear, selectedType]);
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-3xl w-full p-8 bg-white rounded-lg shadow">
+      <div className="max-w-6xl w-full p-8 bg-white rounded-lg shadow">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Hendelseslogg</h1>
+        
+        {/* Filter section */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">År</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="border rounded px-3 py-2 text-sm bg-white"
+              >
+                <option value="alle">Alle år</option>
+                {availableYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="border rounded px-3 py-2 text-sm bg-white"
+              >
+                {HENDELSE_TYPER.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="ml-auto text-sm text-gray-600">
+              {filteredHendelser.length} hendelser funnet
+            </div>
+          </div>
+        </div>
+
         {loading && <div>Laster hendelser...</div>}
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {!loading && !error && (
@@ -82,12 +170,12 @@ export default function LoggClient() {
                 </tr>
               </thead>
               <tbody>
-                {hendelser.length === 0 ? (
+                {filteredHendelser.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center py-4">Ingen hendelser funnet.</td>
+                    <td colSpan={10} className="text-center py-4">Ingen hendelser funnet med valgte filtre.</td>
                   </tr>
                 ) : (
-                  hendelser.map((h, idx) => (
+                  filteredHendelser.map((h, idx) => (
                     <tr key={h.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="border px-3 py-2">{h.tidspunkt ? new Date(h.tidspunkt).toLocaleString() : ""}</td>
                       <td className="border px-3 py-2">{h.type}</td>

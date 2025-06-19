@@ -20,10 +20,19 @@ export type Anlegg = {
 export type Hendelse = {
   id: string
   anlegg_id: string
-  type: 'egenkontroll' | 'avvik' | 'kontroll'
-  beskrivelse: string | null
-  opprettet: string
+  type: 'brannalarm' | 'forvarsel' | 'feil' | 'utkobling' | 'egenkontroll' | 'avvik' | 'kontroll' | 'utbedringer'
+  tidspunkt: string | null
+  enhet: string | null
+  arsak: string | null
+  registrert_av: string | null
+  kommentar: string | null
+  feiltype: string | null
+  sloyfe_sone: string | null
+  utkobling_tid: number | null
+  utkobling_uendelig: boolean | null
+  firma: string | null
   anleggs_type: AnleggsType
+  opprettet: string
 }
 
 export type Kontaktperson = {

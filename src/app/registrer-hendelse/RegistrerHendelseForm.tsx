@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -26,10 +26,11 @@ const FEIL_TYPER = [
   'Annet',
 ]
 
-export default function RegistrerHendelseForm() {
+function RegistrerHendelseContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const anleggKode = searchParams.get('kode') || ''
+  const anleggsType = searchParams.get('anleggs_type') || ''
 
   const [type, setType] = useState('brannalarm')
   const [dato, setDato] = useState('')
@@ -102,6 +103,7 @@ export default function RegistrerHendelseForm() {
       registrert_av: registrertAv,
       kommentar,
       firma: (type === 'kontroll' || type === 'utbedringer') ? firma : undefined,
+      anleggs_type: anleggsType,
     }
     if (type === 'feil') payload.feiltype = feiltype
     if (type === 'utkobling') {
@@ -257,5 +259,17 @@ export default function RegistrerHendelseForm() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function RegistrerHendelseForm() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div>Laster inn...</div>
+      </main>
+    }>
+      <RegistrerHendelseContent />
+    </Suspense>
   )
 } 

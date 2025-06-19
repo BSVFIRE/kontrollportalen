@@ -68,7 +68,7 @@ function VelgTypeContent() {
 
   const handleTypeClick = (type: AnleggsType) => {
     if (type === 'brannalarm') {
-      router.push(`/registrer-hendelse?kode=${kode}`)
+      router.push(`/registrer-hendelse?kode=${kode}&anleggs_type=${type}`)
     }
   }
 
