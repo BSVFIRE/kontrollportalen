@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import type { Anlegg } from '@/lib/supabase'
 
+const ADMIN_PASSWORD = 'BsvFire!'
+
 export default function AdminPage() {
   const [navn, setNavn] = useState('')
   const [adresse, setAdresse] = useState('')
@@ -17,6 +19,55 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<string[]>([])
   const [selectAll, setSelectAll] = useState(false)
+  const [authed, setAuthed] = useState(false)
+  const [pw, setPw] = useState('')
+  const [pwError, setPwError] = useState('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem('admin_authed') === 'true') {
+        setAuthed(true)
+      }
+    }
+  }, [])
+
+  const handlePwSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (pw === ADMIN_PASSWORD) {
+      setAuthed(true)
+      setPwError('')
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('admin_authed', 'true')
+      }
+    } else {
+      setPwError('Feil passord')
+    }
+  }
+
+  if (!authed) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <form onSubmit={handlePwSubmit} className="bg-white p-8 rounded-lg shadow max-w-sm w-full space-y-6">
+          <h1 className="text-2xl font-bold text-center text-gray-900">Admin pålogging</h1>
+          <input
+            type="password"
+            placeholder="Skriv inn admin-passord"
+            value={pw}
+            onChange={e => setPw(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md text-gray-700 placeholder-gray-500"
+            autoFocus
+          />
+          {pwError && <div className="text-red-600 text-center text-sm">{pwError}</div>}
+          <button
+            type="submit"
+            className="w-full py-2 px-4 rounded bg-indigo-600 text-white font-semibold"
+          >
+            Logg inn
+          </button>
+        </form>
+      </main>
+    )
+  }
 
   // Hent alle eksisterende anlegg
   useEffect(() => {
@@ -207,7 +258,7 @@ export default function AdminPage() {
                 placeholder="Søk etter anleggsnavn eller adresse..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md text-gray-700 placeholder-gray-500"
               />
             </div>
             <button
@@ -233,7 +284,7 @@ export default function AdminPage() {
                   className="mr-2"
                   id="selectAll"
                 />
-                <label htmlFor="selectAll" className="text-sm font-medium">Velg alle</label>
+                <label htmlFor="selectAll" className="text-sm font-medium text-gray-700">Velg alle</label>
               </div>
               {filtrerteAnlegg.map((anlegg) => (
                 <div key={anlegg.id} className="p-4 border rounded-lg bg-gray-50 relative">
@@ -250,7 +301,7 @@ export default function AdminPage() {
                   )}
                   <div className="mb-3 ml-6">
                     <p className="text-sm font-medium text-gray-500">Unik kode:</p>
-                    <p className="font-mono text-lg">{anlegg.unik_kode}</p>
+                    <p className="font-mono text-lg text-red-600">{anlegg.unik_kode}</p>
                   </div>
                   <div className="ml-6">
                     <p className="text-sm font-medium text-gray-500 mb-2">QR-kode:</p>
