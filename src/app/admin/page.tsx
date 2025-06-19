@@ -226,7 +226,7 @@ export default function AdminPage() {
         <div className="mt-8 p-6 border rounded-lg bg-blue-50">
           <h2 className="text-xl font-semibold mb-4 text-blue-900">Instruksjoner for Epson Label Editor</h2>
           <div className="space-y-3 text-blue-800">
-            <p><strong>1.</strong> Last ned CSV-filen ved å klikke "Eksporter til CSV" knappen over</p>
+            <p><strong>1.</strong> Last ned CSV-filen ved å klikke &quot;Eksporter til CSV&quot; knappen over</p>
             <p><strong>2.</strong> Åpne Epson Label Editor</p>
             <p><strong>3.</strong> Åpne mal-filen <code className="bg-blue-100 px-1 rounded">kontrollportal_etikett_mal.nlbl</code></p>
             <p><strong>4.</strong> Importer CSV-filen som datasource</p>
