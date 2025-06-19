@@ -131,11 +131,11 @@ export default function AdminPage() {
     setError('')
     setSuccess('')
 
-    const brukerKode = valgtKode || kode
+    let brukerKode = valgtKode || kode
+    
+    // Hvis ingen kode er valgt eller skrevet inn, generer en automatisk
     if (!brukerKode) {
-      setError('Angi en kode eller velg en ledig kode')
-      setLoading(false)
-      return
+      brukerKode = Math.random().toString(36).substring(2, 10).toUpperCase()
     }
 
     try {
