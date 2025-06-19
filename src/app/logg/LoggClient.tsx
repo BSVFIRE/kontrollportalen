@@ -117,14 +117,14 @@ export default function LoggClient() {
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Hendelseslogg</h1>
         
         {/* Filter section */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex flex-wrap gap-4 items-center">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">År</label>
+              <label className="block text-base font-semibold text-gray-900 mb-1">År</label>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="border rounded px-3 py-2 text-sm bg-white"
+                className="border rounded px-3 py-2 text-base text-gray-900 bg-white font-medium border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               >
                 <option value="alle">Alle år</option>
                 {availableYears.map(year => (
@@ -133,18 +133,18 @@ export default function LoggClient() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-base font-semibold text-gray-900 mb-1">Type</label>
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="border rounded px-3 py-2 text-sm bg-white"
+                className="border rounded px-3 py-2 text-base text-gray-900 bg-white font-medium border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
               >
                 {HENDELSE_TYPER.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
             </div>
-            <div className="ml-auto text-sm text-gray-600">
+            <div className="ml-auto text-base text-gray-900">
               {filteredHendelser.length} hendelser funnet
             </div>
           </div>
