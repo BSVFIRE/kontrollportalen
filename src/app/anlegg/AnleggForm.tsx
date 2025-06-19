@@ -32,7 +32,8 @@ export default function AnleggForm() {
       if (error) throw error
 
       if (anlegg) {
-        router.push(`/registrer-hendelse?kode=${kode}`)
+        // Redirect til velg-type siden med koden
+        router.push(`/velg-type?kode=${kode}`)
       } else {
         setError('Ugyldig kode')
       }
