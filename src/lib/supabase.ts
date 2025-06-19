@@ -5,6 +5,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+export type AnleggsType = 'brannalarm' | 'sprinkler' | 'roykluker' | 'slukkeutstyr' | 'ventilasjon' | 'romningsveier'
+
 export type Anlegg = {
   id: string
   navn: string
@@ -12,6 +14,7 @@ export type Anlegg = {
   unik_kode: string
   qr_url: string | null
   opprettet: string
+  type_logg: AnleggsType[]
 }
 
 export type Hendelse = {
@@ -20,6 +23,7 @@ export type Hendelse = {
   type: 'egenkontroll' | 'avvik' | 'kontroll'
   beskrivelse: string | null
   opprettet: string
+  anleggs_type: AnleggsType
 }
 
 export type Kontaktperson = {

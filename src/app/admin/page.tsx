@@ -3,13 +3,23 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
-import type { Anlegg } from '@/lib/supabase'
+import type { Anlegg, AnleggsType } from '@/lib/supabase'
 
 const ADMIN_PASSWORD = 'BsvFire!'
+
+const ANLEGGS_TYPER: { value: AnleggsType; label: string }[] = [
+  { value: 'brannalarm', label: 'Brannalarm' },
+  { value: 'sprinkler', label: 'Sprinkler' },
+  { value: 'roykluker', label: 'Røykluker' },
+  { value: 'slukkeutstyr', label: 'Slukkeutstyr' },
+  { value: 'ventilasjon', label: 'Ventilasjon' },
+  { value: 'romningsveier', label: 'Rømningsveier' },
+]
 
 export default function AdminPage() {
   const [navn, setNavn] = useState('')
   const [adresse, setAdresse] = useState('')
+  const [valgtTyper, setValgtTyper] = useState<AnleggsType[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -141,6 +151,12 @@ export default function AdminPage() {
     setError('')
     setSuccess('')
 
+    if (valgtTyper.length === 0) {
+      setError('Velg minst én type')
+      setLoading(false)
+      return
+    }
+
     try {
       const unik_kode = generateUniqueCode()
       const qr_url = `${window.location.origin}/anlegg?kode=${unik_kode}`
@@ -152,7 +168,8 @@ export default function AdminPage() {
             navn,
             adresse,
             unik_kode,
-            qr_url
+            qr_url,
+            type_logg: valgtTyper
           }
         ])
         .select()
@@ -164,6 +181,7 @@ export default function AdminPage() {
       setNewAnlegg(data)
       setNavn('')
       setAdresse('')
+      setValgtTyper([])
       
       // Oppdater listen med anlegg
       setAlleAnlegg(prev => [data, ...prev])
@@ -173,6 +191,14 @@ export default function AdminPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const toggleType = (type: AnleggsType) => {
+    setValgtTyper(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
   }
 
   return (
@@ -209,6 +235,34 @@ export default function AdminPage() {
                 onChange={(e) => setAdresse(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Velg typer (minst én)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {ANLEGGS_TYPER.map(type => (
+                  <label
+                    key={type.value}
+                    className={`flex items-center space-x-2 p-2 border rounded cursor-pointer transition-colors ${
+                      valgtTyper.includes(type.value)
+                        ? 'bg-indigo-50 border-indigo-200'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={valgtTyper.includes(type.value)}
+                      onChange={() => toggleType(type.value)}
+                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className={valgtTyper.includes(type.value) ? 'text-indigo-900' : 'text-gray-700'}>
+                      {type.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             {error && (
