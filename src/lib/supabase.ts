@@ -59,4 +59,28 @@ export type KontaktHenvendelse = {
   melding: string
   status: 'ny' | 'under_behandling' | 'fullført'
   opprettet: string
+}
+
+export type LedigKode = {
+  id: string
+  unik_kode: string
+  qr_url: string
+  opprettet: string
+}
+
+export type Database = {
+  public: {
+    Tables: {
+      anlegg: {
+        Row: Anlegg
+        Insert: Omit<Anlegg, 'id' | 'opprettet'>
+        Update: Partial<Omit<Anlegg, 'id' | 'opprettet'>>
+      }
+      ledige_koder: {
+        Row: LedigKode
+        Insert: Omit<LedigKode, 'id' | 'opprettet'>
+        Update: Partial<Omit<LedigKode, 'id' | 'opprettet'>>
+      }
+    }
+  }
 } 

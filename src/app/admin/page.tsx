@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import type { Anlegg, AnleggsType } from '@/lib/supabase'
+import Link from 'next/link'
 
 const ADMIN_PASSWORD = 'BsvFire!'
 
@@ -19,7 +20,10 @@ const ANLEGGS_TYPER: { value: AnleggsType; label: string }[] = [
 export default function AdminPage() {
   const [navn, setNavn] = useState('')
   const [adresse, setAdresse] = useState('')
-  const [valgtTyper, setValgtTyper] = useState<AnleggsType[]>([])
+  const [kode, setKode] = useState('')
+  const [ledigeKoder, setLedigeKoder] = useState<{ unik_kode: string }[]>([])
+  const [valgtKode, setValgtKode] = useState('')
+  const [selectedTypes, setSelectedTypes] = useState<AnleggsType[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -61,6 +65,24 @@ export default function AdminPage() {
     hentAlleAnlegg()
   }, [])
 
+  useEffect(() => {
+    const hentLedigeKoder = async () => {
+      const { data, error } = await supabase
+        .from('ledige_koder')
+        .select('unik_kode')
+        .order('opprettet', { ascending: true })
+
+      if (error) {
+        console.error('Feil ved henting av ledige koder:', error)
+        return
+      }
+
+      setLedigeKoder(data || [])
+    }
+
+    hentLedigeKoder()
+  }, [])
+
   const handlePwSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (pw === ADMIN_PASSWORD) {
@@ -99,8 +121,91 @@ export default function AdminPage() {
     )
   }
 
-  const generateUniqueCode = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (selectedTypes.length === 0) {
+      setError('Velg minst én type')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    const brukerKode = valgtKode || kode
+    if (!brukerKode) {
+      setError('Angi en kode eller velg en ledig kode')
+      setLoading(false)
+      return
+    }
+
+    try {
+      // Sjekk om koden allerede er i bruk
+      const { data: eksisterende } = await supabase
+        .from('anlegg')
+        .select('id')
+        .eq('unik_kode', brukerKode)
+        .single()
+
+      if (eksisterende) {
+        setError('Denne koden er allerede i bruk')
+        setLoading(false)
+        return
+      }
+
+      // Opprett nytt anlegg
+      const { error: insertError } = await supabase
+        .from('anlegg')
+        .insert([
+          {
+            navn,
+            adresse,
+            unik_kode: brukerKode,
+            qr_url: `${window.location.origin}/anlegg?kode=${brukerKode}`,
+            type_logg: selectedTypes
+          }
+        ])
+
+      if (insertError) throw insertError
+
+      // Hvis vi brukte en ledig kode, slett den fra ledige_koder tabellen
+      if (valgtKode) {
+        await supabase
+          .from('ledige_koder')
+          .delete()
+          .eq('unik_kode', valgtKode)
+
+        // Oppdater listen over ledige koder
+        setLedigeKoder(prev => prev.filter(k => k.unik_kode !== valgtKode))
+      }
+
+      setSuccess('Anlegg registrert!')
+      setNewAnlegg({
+        navn,
+        adresse,
+        unik_kode: brukerKode,
+        qr_url: `${window.location.origin}/anlegg?kode=${brukerKode}`,
+        type_logg: selectedTypes
+      })
+      setNavn('')
+      setAdresse('')
+      setKode('')
+      setValgtKode('')
+      setSelectedTypes([])
+    } catch (err) {
+      console.error('Feil ved registrering:', err)
+      setError('Kunne ikke registrere anlegg')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleType = (type: AnleggsType) => {
+    setSelectedTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
   }
 
   // Filtrert liste basert på søk
@@ -145,62 +250,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess('')
-
-    if (valgtTyper.length === 0) {
-      setError('Velg minst én type')
-      setLoading(false)
-      return
-    }
-
-    try {
-      const unik_kode = generateUniqueCode()
-      const qr_url = `${window.location.origin}/anlegg?kode=${unik_kode}`
-
-      const { data, error } = await supabase
-        .from('anlegg')
-        .insert([
-          {
-            navn,
-            adresse,
-            unik_kode,
-            qr_url,
-            type_logg: valgtTyper
-          }
-        ])
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setSuccess('Anlegg registrert!')
-      setNewAnlegg(data)
-      setNavn('')
-      setAdresse('')
-      setValgtTyper([])
-      
-      // Oppdater listen med anlegg
-      setAlleAnlegg(prev => [data, ...prev])
-    } catch (err) {
-      setError('Kunne ikke registrere anlegg')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const toggleType = (type: AnleggsType) => {
-    setValgtTyper(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    )
-  }
-
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
@@ -209,6 +258,14 @@ export default function AdminPage() {
         {/* Registrer nytt anlegg */}
         <div className="mb-12 p-6 border rounded-lg bg-gray-50">
           <h2 className="text-xl font-semibold mb-6 text-gray-900">Registrer nytt anlegg</h2>
+          <div className="mb-8">
+            <Link
+              href="/admin/etiketter"
+              className="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+            >
+              Generer tomme etiketter
+            </Link>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="navn" className="block text-sm font-medium text-gray-700">
@@ -239,29 +296,62 @@ export default function AdminPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Velg typer (minst én)
+                Velg type(r)
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {ANLEGGS_TYPER.map(type => (
-                  <label
+                  <button
                     key={type.value}
-                    className={`flex items-center space-x-2 p-2 border rounded cursor-pointer transition-colors ${
-                      valgtTyper.includes(type.value)
-                        ? 'bg-indigo-50 border-indigo-200'
-                        : 'hover:bg-gray-50'
+                    type="button"
+                    onClick={() => toggleType(type.value)}
+                    className={`p-2 rounded border ${
+                      selectedTypes.includes(type.value)
+                        ? 'bg-blue-100 border-blue-500 text-blue-700'
+                        : 'bg-white border-gray-300 text-gray-700'
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={valgtTyper.includes(type.value)}
-                      onChange={() => toggleType(type.value)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className={valgtTyper.includes(type.value) ? 'text-indigo-900' : 'text-gray-700'}>
-                      {type.label}
-                    </span>
-                  </label>
+                    {type.label}
+                  </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Velg en ledig kode
+                </label>
+                <select
+                  value={valgtKode}
+                  onChange={(e) => {
+                    setValgtKode(e.target.value)
+                    setKode('') // Nullstill manuell kode når man velger en ledig
+                  }}
+                  className="border rounded px-3 py-2 w-full text-gray-900"
+                >
+                  <option value="">Velg en kode</option>
+                  {ledigeKoder.map(k => (
+                    <option key={k.unik_kode} value={k.unik_kode}>
+                      {k.unik_kode}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Eller skriv inn en ny kode
+                </label>
+                <input
+                  type="text"
+                  value={kode}
+                  onChange={(e) => {
+                    setKode(e.target.value)
+                    setValgtKode('') // Nullstill valgt kode når man skriver manuelt
+                  }}
+                  placeholder="Skriv inn kode"
+                  className="border rounded px-3 py-2 w-full text-gray-900"
+                />
               </div>
             </div>
 
