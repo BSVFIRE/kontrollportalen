@@ -1,0 +1,3 @@
+anlegg_navn,unik_kode,qr_url
+"Test Anlegg 1",MQBQM7,"https://kontrollportalen-afxddzqkt-erik-skilles-projects.vercel.app/registrer-hendelse?kode=MQBQM7"
+"Test Anlegg 2",ABC123,"https://kontrollportalen-afxddzqkt-erik-skilles-projects.vercel.app/registrer-hendelse?kode=ABC123" 

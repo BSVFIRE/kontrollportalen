@@ -41,6 +41,28 @@ export default function AdminPage() {
     return Math.random().toString(36).substring(2, 8).toUpperCase()
   }
 
+  // Eksporter data til CSV for Epson Label Editor
+  const eksporterTilCSV = () => {
+    const csvHeader = 'anlegg_navn,unik_kode,qr_url\n'
+    const csvData = alleAnlegg.map(anlegg => 
+      `"${anlegg.navn}","${anlegg.unik_kode}","${anlegg.qr_url}"`
+    ).join('\n')
+    
+    const csvContent = csvHeader + csvData
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', 'anlegg_data.csv')
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -155,7 +177,15 @@ export default function AdminPage() {
 
         {/* Vis alle eksisterende anlegg */}
         <div className="p-6 border rounded-lg bg-white">
-          <h2 className="text-xl font-semibold mb-6">Alle registrerte anlegg</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Alle registrerte anlegg</h2>
+            <button
+              onClick={eksporterTilCSV}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+            >
+              Eksporter til CSV
+            </button>
+          </div>
           
           {loadingAnlegg ? (
             <div className="text-center py-8">Laster anlegg...</div>
@@ -190,6 +220,21 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Instruksjoner for Epson Label Editor */}
+        <div className="mt-8 p-6 border rounded-lg bg-blue-50">
+          <h2 className="text-xl font-semibold mb-4 text-blue-900">Instruksjoner for Epson Label Editor</h2>
+          <div className="space-y-3 text-blue-800">
+            <p><strong>1.</strong> Last ned CSV-filen ved å klikke "Eksporter til CSV" knappen over</p>
+            <p><strong>2.</strong> Åpne Epson Label Editor</p>
+            <p><strong>3.</strong> Åpne mal-filen <code className="bg-blue-100 px-1 rounded">kontrollportal_etikett_mal.nlbl</code></p>
+            <p><strong>4.</strong> Importer CSV-filen som datasource</p>
+            <p><strong>5.</strong> Skriv ut etiketter for alle anlegg</p>
+            <p className="text-sm mt-4">
+              <strong>Merk:</strong> Mal-filen er lagret som <code className="bg-blue-100 px-1 rounded">kontrollportal_etikett_mal.nlbl</code> i prosjektmappen.
+            </p>
+          </div>
         </div>
       </div>
     </main>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Label>
+  <LabelSize>
+    <Width>60</Width>
+    <Height>40</Height>
+    <Unit>mm</Unit>
+  </LabelSize>
+  <PrintSettings>
+    <PrintDensity>5</PrintDensity>
+    <PrintSpeed>2</PrintSpeed>
+    <PrintQuality>High</PrintQuality>
+  </PrintSettings>
+  <Objects>
+    <!-- Hovedtittel -->
+    <TextObject>
+      <ID>1</ID>
+      <X>5</X>
+      <Y>5</Y>
+      <Width>50</Width>
+      <Height>8</Height>
+      <Font>
+        <Name>Arial</Name>
+        <Size>12</Size>
+        <Bold>true</Bold>
+      </Font>
+      <Text>Loggbok - Registrer hendelse</Text>
+      <Alignment>Center</Alignment>
+    </TextObject>
+    
+    <!-- QR-kode plassering -->
+    <QRCodeObject>
+      <ID>2</ID>
+      <X>15</X>
+      <Y>15</Y>
+      <Width>30</Width>
+      <Height>30</Height>
+      <QRCodeData>https://kontrollportalen-afxddzqkt-erik-skilles-projects.vercel.app/registrer-hendelse?kode=MQBQM7</QRCodeData>
+      <ErrorCorrectionLevel>M</ErrorCorrectionLevel>
+    </QRCodeObject>
+    
+    <!-- Unik kode nederst -->
+    <TextObject>
+      <ID>3</ID>
+      <X>5</X>
+      <Y>47</Y>
+      <Width>50</Width>
+      <Height>6</Height>
+      <Font>
+        <Name>Arial</Name>
+        <Size>10</Size>
+        <Bold>false</Bold>
+      </Font>
+      <Text>Kode: MQBQM7</Text>
+      <Alignment>Center</Alignment>
+    </TextObject>
+    
+    <!-- Instruksjonstekst -->
+    <TextObject>
+      <ID>4</ID>
+      <X>5</X>
+      <Y>55</Y>
+      <Width>50</Width>
+      <Height>4</Height>
+      <Font>
+        <Name>Arial</Name>
+        <Size>8</Size>
+        <Bold>false</Bold>
+      </Font>
+      <Text>Skann QR-kode for å registrere hendelse</Text>
+      <Alignment>Center</Alignment>
+    </TextObject>
+  </Objects>
+  
+  <Variables>
+    <Variable>
+      <Name>QR_URL</Name>
+      <Type>String</Type>
+      <DefaultValue>https://kontrollportalen-afxddzqkt-erik-skilles-projects.vercel.app/registrer-hendelse?kode=</DefaultValue>
+    </Variable>
+    <Variable>
+      <Name>UNIK_KODE</Name>
+      <Type>String</Type>
+      <DefaultValue>MQBQM7</DefaultValue>
+    </Variable>
+    <Variable>
+      <Name>ANLEGG_NAVN</Name>
+      <Type>String</Type>
+      <DefaultValue>Anleggsnavn</DefaultValue>
+    </Variable>
+  </Variables>
+  
+  <DataSources>
+    <DataSource>
+      <ID>1</ID>
+      <Type>CSV</Type>
+      <FileName>anlegg_data.csv</FileName>
+      <Delimiter>,</Delimiter>
+      <HasHeader>true</HasHeader>
+      <Fields>
+        <Field>
+          <Name>anlegg_navn</Name>
+          <Column>0</Column>
+        </Field>
+        <Field>
+          <Name>unik_kode</Name>
+          <Column>1</Column>
+        </Field>
+        <Field>
+          <Name>qr_url</Name>
+          <Column>2</Column>
+        </Field>
+      </Fields>
+    </DataSource>
+  </DataSources>
+  
+  <Bindings>
+    <Binding>
+      <ObjectID>2</ObjectID>
+      <Property>QRCodeData</Property>
+      <DataSourceID>1</DataSourceID>
+      <FieldName>qr_url</FieldName>
+    </Binding>
+    <Binding>
+      <ObjectID>3</ObjectID>
+      <Property>Text</Property>
+      <DataSourceID>1</DataSourceID>
+      <FieldName>unik_kode</FieldName>
+      <Format>Kode: {0}</Format>
+    </Binding>
+  </Bindings>
+</Label> 
