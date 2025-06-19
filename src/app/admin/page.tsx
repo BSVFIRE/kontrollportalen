@@ -31,6 +31,26 @@ export default function AdminPage() {
     }
   }, [])
 
+  useEffect(() => {
+    const hentAlleAnlegg = async () => {
+      setLoadingAnlegg(true)
+      try {
+        const { data, error } = await supabase
+          .from('anlegg')
+          .select('*')
+          .order('opprettet', { ascending: false })
+
+        if (error) throw error
+        setAlleAnlegg(data || [])
+      } catch (err) {
+        console.error('Kunne ikke hente anlegg:', err)
+      } finally {
+        setLoadingAnlegg(false)
+      }
+    }
+    hentAlleAnlegg()
+  }, [])
+
   const handlePwSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (pw === ADMIN_PASSWORD) {
@@ -68,28 +88,6 @@ export default function AdminPage() {
       </main>
     )
   }
-
-  // Hent alle eksisterende anlegg
-  useEffect(() => {
-    const hentAlleAnlegg = async () => {
-      setLoadingAnlegg(true)
-      try {
-        const { data, error } = await supabase
-          .from('anlegg')
-          .select('*')
-          .order('opprettet', { ascending: false })
-
-        if (error) throw error
-        setAlleAnlegg(data || [])
-      } catch (err) {
-        console.error('Kunne ikke hente anlegg:', err)
-      } finally {
-        setLoadingAnlegg(false)
-      }
-    }
-
-    hentAlleAnlegg()
-  }, [])
 
   const generateUniqueCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase()
