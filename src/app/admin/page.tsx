@@ -14,6 +14,9 @@ export default function AdminPage() {
   const [newAnlegg, setNewAnlegg] = useState<Anlegg | null>(null)
   const [alleAnlegg, setAlleAnlegg] = useState<Anlegg[]>([])
   const [loadingAnlegg, setLoadingAnlegg] = useState(false)
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState<string[]>([])
+  const [selectAll, setSelectAll] = useState(false)
 
   // Hent alle eksisterende anlegg
   useEffect(() => {
@@ -41,17 +44,37 @@ export default function AdminPage() {
     return Math.random().toString(36).substring(2, 8).toUpperCase()
   }
 
-  // Eksporter data til CSV for Epson Label Editor
+  // Filtrert liste basert på søk
+  const filtrerteAnlegg = alleAnlegg.filter(anlegg =>
+    anlegg.navn.toLowerCase().includes(search.toLowerCase()) ||
+    (anlegg.adresse?.toLowerCase().includes(search.toLowerCase()) ?? false)
+  )
+
+  // Håndter avkrysning
+  const toggleSelect = (id: string) => {
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelected([])
+      setSelectAll(false)
+    } else {
+      setSelected(filtrerteAnlegg.map(a => a.id))
+      setSelectAll(true)
+    }
+  }
+
+  // Eksporter kun valgte anlegg til CSV
   const eksporterTilCSV = () => {
+    const eksportAnlegg = filtrerteAnlegg.filter(a => selected.includes(a.id))
+    if (eksportAnlegg.length === 0) return
     const csvHeader = 'anlegg_navn,unik_kode,qr_url\n'
-    const csvData = alleAnlegg.map(anlegg => 
+    const csvData = eksportAnlegg.map(anlegg => 
       `"${anlegg.navn}","${anlegg.unik_kode}","${anlegg.qr_url}"`
     ).join('\n')
-    
     const csvContent = csvHeader + csvData
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
-    
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob)
       link.setAttribute('href', url)
@@ -106,11 +129,11 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Admin Panel - Kontrollportal</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900">Admin Panel - Kontrollportal</h1>
 
         {/* Registrer nytt anlegg */}
         <div className="mb-12 p-6 border rounded-lg bg-gray-50">
-          <h2 className="text-xl font-semibold mb-6">Registrer nytt anlegg</h2>
+          <h2 className="text-xl font-semibold mb-6 text-gray-900">Registrer nytt anlegg</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="navn" className="block text-sm font-medium text-gray-700">
@@ -158,7 +181,7 @@ export default function AdminPage() {
 
           {newAnlegg && (
             <div className="mt-8 p-6 border rounded-lg bg-white">
-              <h3 className="text-lg font-semibold mb-4">Anlegg registrert!</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Anlegg registrert!</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Unik kode:</p>
@@ -175,35 +198,61 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* Vis alle eksisterende anlegg */}
+        {/* Søkefelt og eksport */}
         <div className="p-6 border rounded-lg bg-white">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Alle registrerte anlegg</h2>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Søk etter anleggsnavn eller adresse..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
             <button
               onClick={eksporterTilCSV}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm disabled:opacity-50"
+              disabled={selected.length === 0}
             >
-              Eksporter til CSV
+              Eksporter valgte til CSV
             </button>
           </div>
-          
+
           {loadingAnlegg ? (
             <div className="text-center py-8">Laster anlegg...</div>
-          ) : alleAnlegg.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">Ingen anlegg registrert ennå</div>
+          ) : filtrerteAnlegg.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">Ingen anlegg funnet</div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {alleAnlegg.map((anlegg) => (
-                <div key={anlegg.id} className="p-4 border rounded-lg bg-gray-50">
-                  <h3 className="font-semibold text-lg mb-2">{anlegg.navn}</h3>
+              <div className="col-span-full flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  className="mr-2"
+                  id="selectAll"
+                />
+                <label htmlFor="selectAll" className="text-sm font-medium">Velg alle</label>
+              </div>
+              {filtrerteAnlegg.map((anlegg) => (
+                <div key={anlegg.id} className="p-4 border rounded-lg bg-gray-50 relative">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(anlegg.id)}
+                    onChange={() => toggleSelect(anlegg.id)}
+                    className="absolute top-3 left-3"
+                    aria-label={`Velg ${anlegg.navn}`}
+                  />
+                  <h3 className="font-semibold text-lg mb-2 ml-6 text-gray-900">{anlegg.navn}</h3>
                   {anlegg.adresse && (
-                    <p className="text-sm text-gray-600 mb-2">{anlegg.adresse}</p>
+                    <p className="text-sm text-gray-600 mb-2 ml-6">{anlegg.adresse}</p>
                   )}
-                  <div className="mb-3">
+                  <div className="mb-3 ml-6">
                     <p className="text-sm font-medium text-gray-500">Unik kode:</p>
                     <p className="font-mono text-lg">{anlegg.unik_kode}</p>
                   </div>
-                  <div>
+                  <div className="ml-6">
                     <p className="text-sm font-medium text-gray-500 mb-2">QR-kode:</p>
                     <div className="p-3 bg-white inline-block border rounded">
                       <QRCode 
@@ -212,7 +261,7 @@ export default function AdminPage() {
                       />
                     </div>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-3 ml-6">
                     <p className="text-xs text-gray-500">URL:</p>
                     <p className="text-xs font-mono break-all">{anlegg.qr_url}</p>
                   </div>
