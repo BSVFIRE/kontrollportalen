@@ -27,7 +27,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [newAnlegg, setNewAnlegg] = useState<Anlegg | null>(null)
   const [alleAnlegg, setAlleAnlegg] = useState<Anlegg[]>([])
   const [loadingAnlegg, setLoadingAnlegg] = useState(false)
   const [search, setSearch] = useState('')
@@ -180,13 +179,6 @@ export default function AdminPage() {
       }
 
       setSuccess('Anlegg registrert!')
-      setNewAnlegg({
-        navn,
-        adresse,
-        unik_kode: brukerKode,
-        qr_url: `${window.location.origin}/anlegg?kode=${brukerKode}`,
-        type_logg: selectedTypes
-      })
       setNavn('')
       setAdresse('')
       setKode('')
@@ -371,24 +363,6 @@ export default function AdminPage() {
               {loading ? 'Registrerer...' : 'Registrer anlegg'}
             </button>
           </form>
-
-          {newAnlegg && (
-            <div className="mt-8 p-6 border rounded-lg bg-white">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">Anlegg registrert!</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Unik kode:</p>
-                  <p className="text-lg font-mono">{newAnlegg.unik_kode}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">QR-kode:</p>
-                  <div className="p-4 bg-white inline-block border">
-                    <QRCode value={newAnlegg.qr_url ?? ''} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Søkefelt og eksport */}
