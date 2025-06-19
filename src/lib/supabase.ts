@@ -36,4 +36,14 @@ export type Rapport = {
   fil_url: string
   dato: string
   beskrivelse: string | null
+}
+
+export type KontaktHenvendelse = {
+  id: string
+  navn: string
+  epost: string
+  telefon: string | null
+  melding: string
+  status: 'ny' | 'under_behandling' | 'fullført'
+  opprettet: string
 } 

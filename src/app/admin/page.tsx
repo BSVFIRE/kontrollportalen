@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import type { Anlegg } from '@/lib/supabase'
+import Link from 'next/link'
 
 const ADMIN_PASSWORD = 'BsvFire!'
 
@@ -143,7 +144,7 @@ export default function AdminPage() {
 
     try {
       const unik_kode = generateUniqueCode()
-      const qr_url = `${window.location.origin}/registrer-hendelse?kode=${unik_kode}`
+      const qr_url = `${window.location.origin}/anlegg?kode=${unik_kode}`
 
       const { data, error } = await supabase
         .from('anlegg')
@@ -332,6 +333,31 @@ export default function AdminPage() {
             <p className="text-sm mt-4">
               <strong>Merk:</strong> Mal-filen er lagret som <code className="bg-blue-100 px-1 rounded">kontrollportal_etikett_mal.nlbl</code> i prosjektmappen.
             </p>
+          </div>
+        </div>
+
+        <div className="mt-8 p-6 border rounded-lg bg-gray-50">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Admin Menu</h2>
+          <div className="space-y-3 text-gray-800">
+            <Link
+              href="/admin/anlegg"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+            >
+              <svg className="text-gray-400 group-hover:text-gray-500 mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              Anlegg
+            </Link>
+
+            <Link
+              href="/admin/kontakt"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+            >
+              <svg className="text-gray-400 group-hover:text-gray-500 mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              Kontakthenvendelser
+            </Link>
           </div>
         </div>
       </div>
