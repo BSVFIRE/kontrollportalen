@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import type { Anlegg } from '@/lib/supabase'
-import Link from 'next/link'
 
 const ADMIN_PASSWORD = 'BsvFire!'
 
