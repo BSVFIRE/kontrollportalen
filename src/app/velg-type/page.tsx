@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { AnleggsType } from '@/lib/supabase'
@@ -32,7 +32,7 @@ const TYPE_ICONS: Record<AnleggsType, { icon: string; label: string }> = {
   }
 }
 
-export default function VelgTypePage() {
+function VelgTypeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const kode = searchParams.get('kode') || ''
@@ -114,5 +114,17 @@ export default function VelgTypePage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function VelgTypePage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div>Laster inn...</div>
+      </main>
+    }>
+      <VelgTypeContent />
+    </Suspense>
   )
 } 
