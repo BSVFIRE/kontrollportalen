@@ -34,48 +34,48 @@ function AnleggContent() {
 
   useEffect(() => {
     if (kode) {
+      const hentAnlegg = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('anlegg')
+            .select('*')
+            .eq('unik_kode', kode)
+            .single()
+
+          if (error && error.code !== 'PGRST116') {
+            throw error
+          }
+
+          if (data) {
+            setAnlegg(data)
+          } else {
+            // Koden finnes ikke i anlegg-tabellen, sjekk om den finnes i ledige_koder
+            const { data: ledigKode } = await supabase
+              .from('ledige_koder')
+              .select('unik_kode')
+              .eq('unik_kode', kode)
+              .single()
+
+            if (ledigKode) {
+              // Koden finnes som ledig kode, vis registreringsskjema
+              setIsRegistering(true)
+            } else {
+              setError('Ugyldig kode')
+            }
+          }
+        } catch (err) {
+          console.error('Feil ved henting av anlegg:', err)
+          setError('Kunne ikke hente anlegg')
+        } finally {
+          setLoading(false)
+        }
+      }
+      
       hentAnlegg()
     } else {
       setLoading(false)
     }
   }, [kode])
-
-  const hentAnlegg = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('anlegg')
-        .select('*')
-        .eq('unik_kode', kode)
-        .single()
-
-      if (error && error.code !== 'PGRST116') {
-        throw error
-      }
-
-      if (data) {
-        setAnlegg(data)
-      } else {
-        // Koden finnes ikke i anlegg-tabellen, sjekk om den finnes i ledige_koder
-        const { data: ledigKode } = await supabase
-          .from('ledige_koder')
-          .select('unik_kode')
-          .eq('unik_kode', kode)
-          .single()
-
-        if (ledigKode) {
-          // Koden finnes som ledig kode, vis registreringsskjema
-          setIsRegistering(true)
-        } else {
-          setError('Ugyldig kode')
-        }
-      }
-    } catch (err) {
-      console.error('Feil ved henting av anlegg:', err)
-      setError('Kunne ikke hente anlegg')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
