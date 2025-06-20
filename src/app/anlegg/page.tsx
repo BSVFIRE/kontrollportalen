@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Anlegg, AnleggsType } from '@/lib/supabase'
+import QRCode from 'react-qr-code'
 
 const ANLEGGS_TYPER: { value: AnleggsType; label: string }[] = [
   { value: 'brannalarm', label: 'Brannalarm' },

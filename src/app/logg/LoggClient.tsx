@@ -142,7 +142,7 @@ export default function LoggClient() {
       utkobling_uendelig: h.utkobling_uendelig === true ? 'Ja' : h.utkobling_uendelig === false ? 'Nei' : '',
       firma: h.firma || '',
     }));
-    // @ts-ignore
+    // @ts-expect-error
     doc.autoTable({ columns, body: rows, startY: 22, styles: { fontSize: 8 } });
     doc.save('hendelseslogg.pdf');
   };
