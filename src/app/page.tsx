@@ -17,7 +17,7 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-6">
               <Link
-                href="/anlegg"
+                href="/login"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Logg inn
