@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 type Hendelse = {
   id: string;
@@ -111,10 +113,54 @@ export default function LoggClient() {
     setFilteredHendelser(filtered);
   }, [hendelser, selectedYear, selectedType]);
 
+  // PDF-eksport
+  const eksportTilPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Hendelseslogg', 14, 16);
+    // Lag kolonneoverskrifter og rader
+    const columns = [
+      { header: 'Tidspunkt', dataKey: 'tidspunkt' },
+      { header: 'Type', dataKey: 'type' },
+      { header: 'Årsak', dataKey: 'arsak' },
+      { header: 'Registrert av', dataKey: 'registrert_av' },
+      { header: 'Kommentar', dataKey: 'kommentar' },
+      { header: 'Feiltype', dataKey: 'feiltype' },
+      { header: 'Enhet', dataKey: 'enhet' },
+      { header: 'Utkobling tid', dataKey: 'utkobling_tid' },
+      { header: 'Utkobling uendelig', dataKey: 'utkobling_uendelig' },
+      { header: 'Firma', dataKey: 'firma' },
+    ];
+    const rows = filteredHendelser.map(h => ({
+      tidspunkt: h.tidspunkt ? new Date(h.tidspunkt).toLocaleString() : '',
+      type: h.type,
+      arsak: h.arsak || '',
+      registrert_av: h.registrert_av || '',
+      kommentar: h.kommentar || '',
+      feiltype: h.feiltype || '',
+      enhet: h.enhet || '',
+      utkobling_tid: h.utkobling_tid !== undefined && h.utkobling_tid !== null ? h.utkobling_tid + ' min' : '',
+      utkobling_uendelig: h.utkobling_uendelig === true ? 'Ja' : h.utkobling_uendelig === false ? 'Nei' : '',
+      firma: h.firma || '',
+    }));
+    // @ts-ignore
+    doc.autoTable({ columns, body: rows, startY: 22, styles: { fontSize: 8 } });
+    doc.save('hendelseslogg.pdf');
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-6xl w-full p-8 bg-white rounded-lg shadow">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Hendelseslogg</h1>
+        {/* PDF-eksport knapp */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={eksportTilPDF}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            disabled={filteredHendelser.length === 0}
+          >
+            Eksporter til PDF
+          </button>
+        </div>
         
         {/* Filter section */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
