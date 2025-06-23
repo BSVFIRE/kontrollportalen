@@ -113,11 +113,12 @@ export default function LoggClient() {
 
   // PDF-eksport
   const eksportTilPDF = async () => {
-    const jsPDF = (await import('jspdf')).default;
-    await import('jspdf-autotable');
+    const jsPDFModule = await import('jspdf');
+    const jsPDF = jsPDFModule.default;
+    const autoTable = (await import('jspdf-autotable')).default;
+
     const doc = new jsPDF();
     doc.text('Hendelseslogg', 14, 16);
-    // Lag kolonneoverskrifter og rader
     const columns = [
       { header: 'Tidspunkt', dataKey: 'tidspunkt' },
       { header: 'Type', dataKey: 'type' },
@@ -142,8 +143,7 @@ export default function LoggClient() {
       utkobling_uendelig: h.utkobling_uendelig === true ? 'Ja' : h.utkobling_uendelig === false ? 'Nei' : '',
       firma: h.firma || '',
     }));
-    // @ts-expect-error - jspdf-autotable types are not fully compatible with current jspdf version
-    doc.autoTable({ columns, body: rows, startY: 22, styles: { fontSize: 8 } });
+    autoTable(doc, { columns, body: rows, startY: 22, styles: { fontSize: 8 } });
     doc.save('hendelseslogg.pdf');
   };
 
