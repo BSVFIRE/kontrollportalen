@@ -117,7 +117,7 @@ export default function LoggClient() {
     const jsPDF = jsPDFModule.default;
     const autoTable = (await import('jspdf-autotable')).default;
 
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: 'landscape' });
     doc.text('Hendelseslogg', 14, 16);
     const columns = [
       { header: 'Tidspunkt', dataKey: 'tidspunkt' },
@@ -143,7 +143,15 @@ export default function LoggClient() {
       utkobling_uendelig: h.utkobling_uendelig === true ? 'Ja' : h.utkobling_uendelig === false ? 'Nei' : '',
       firma: h.firma || '',
     }));
-    autoTable(doc, { columns, body: rows, startY: 22, styles: { fontSize: 8 } });
+    autoTable(doc, {
+      columns,
+      body: rows,
+      startY: 22,
+      styles: { fontSize: 10 },
+      columnStyles: {
+        kommentar: { cellWidth: 60 },
+      },
+    });
     doc.save('hendelseslogg.pdf');
   };
 
