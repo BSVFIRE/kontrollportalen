@@ -52,12 +52,14 @@ function RegistrerHendelseContent() {
   const [anleggId, setAnleggId] = useState<string | null>(null)
   useEffect(() => {
     if (anleggKode) {
+      console.log('Prøver å hente anlegg med kode:', anleggKode);
       supabase
         .from('anlegg')
         .select('id')
         .eq('unik_kode', anleggKode)
         .single()
         .then(({ data, error }) => {
+          console.log('Resultat fra supabase:', { data, error });
           if (error) {
             console.error('Error fetching anlegg:', error)
             setError('Kunne ikke hente anlegg informasjon')
