@@ -83,6 +83,21 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Hero Section */}
+      <section className="py-16 bg-white text-center">
+        <h2 className="text-4xl font-bold mb-4 text-indigo-700">Velkommen til Kontrollportalen</h2>
+        <p className="text-lg text-gray-700 mb-8">Din digitale loggbok og verktøy for dokumentasjon og kontroll av brannalarmanlegg.</p>
+        <div className="flex flex-col items-center gap-4">
+          <Link
+            href="/krav"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold shadow"
+          >
+            Les mer om eiersplikter
+          </Link>
+          <span className="text-sm text-gray-500 max-w-md">På denne siden finner du krav til dokumentasjon, kontroll og eiers ansvar etter NS 3960:2019 og teknisk forskrift.</span>
+        </div>
+      </section>
+
       {/* Features Section */}
       <div className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
