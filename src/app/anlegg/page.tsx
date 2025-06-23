@@ -275,7 +275,7 @@ function AnleggContent() {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-900">Registrer hendelse</h2>
               <a
-                href={`/registrer-hendelse?anlegg=${anlegg.id}`}
+                href={`/registrer-hendelse?kode=${anlegg.unik_kode}`}
                 className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Registrer ny hendelse
@@ -285,7 +285,7 @@ function AnleggContent() {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-900">Se hendelser</h2>
               <a
-                href={`/logg?anlegg=${anlegg.id}`}
+                href={`/logg?kode=${anlegg.unik_kode}`}
                 className="inline-block bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
               >
                 Se hendelseslogg
