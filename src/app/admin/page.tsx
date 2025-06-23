@@ -366,74 +366,74 @@ export default function AdminPage() {
         </div>
 
         {/* Søkefelt og eksport */}
-        <div className="p-6 border rounded-lg bg-white">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Søk etter anleggsnavn eller adresse..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md text-gray-700 placeholder-gray-500"
-              />
+        <div className="bg-white p-6 rounded-lg shadow mt-8">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Alle anlegg</h2>
+          <div className="flex justify-between items-center mb-4">
+            <input
+              type="text"
+              placeholder="Søk etter anlegg..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="border rounded px-3 py-2 w-1/3 text-gray-900"
+            />
+            <div>
+              <button
+                onClick={eksporterTilCSV}
+                disabled={selected.length === 0}
+                className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                Eksporter valgte ({selected.length})
+              </button>
             </div>
-            <button
-              onClick={eksporterTilCSV}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm disabled:opacity-50"
-              disabled={selected.length === 0}
-            >
-              Eksporter valgte til CSV
-            </button>
           </div>
 
           {loadingAnlegg ? (
-            <div className="text-center py-8">Laster anlegg...</div>
-          ) : filtrerteAnlegg.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">Ingen anlegg funnet</div>
+            <div>Laster anlegg...</div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="col-span-full flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                  className="mr-2"
-                  id="selectAll"
-                />
-                <label htmlFor="selectAll" className="text-sm font-medium text-gray-700">Velg alle</label>
-              </div>
-              {filtrerteAnlegg.map((anlegg) => (
-                <div key={anlegg.id} className="p-4 border rounded-lg bg-gray-50 relative">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(anlegg.id)}
-                    onChange={() => toggleSelect(anlegg.id)}
-                    className="absolute top-3 left-3"
-                    aria-label={`Velg ${anlegg.navn}`}
-                  />
-                  <h3 className="font-semibold text-lg mb-2 ml-6 text-gray-900">{anlegg.navn}</h3>
-                  {anlegg.adresse && (
-                    <p className="text-sm text-gray-600 mb-2 ml-6">{anlegg.adresse}</p>
-                  )}
-                  <div className="mb-3 ml-6">
-                    <p className="text-sm font-medium text-gray-500">Unik kode:</p>
-                    <p className="font-mono text-lg text-red-600">{anlegg.unik_kode}</p>
-                  </div>
-                  <div className="ml-6">
-                    <p className="text-sm font-medium text-gray-500 mb-2">QR-kode:</p>
-                    <div className="p-3 bg-white inline-block border rounded">
-                      <QRCode 
-                        value={anlegg.qr_url ?? ''} 
-                        size={120}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-3 ml-6">
-                    <p className="text-xs text-gray-500">URL:</p>
-                    <p className="text-xs font-mono break-all">{anlegg.qr_url}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="min-w-full border text-sm text-left">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-3 border-r">
+                      <input type="checkbox" onChange={handleSelectAll} checked={selectAll} />
+                    </th>
+                    <th className="p-3 border-r">Anlegg</th>
+                    <th className="p-3 border-r">Unik kode</th>
+                    <th className="p-3 border-r">QR-kode</th>
+                    <th className="p-3 border-r text-center">Hendelseslogg</th>
+                    <th className="p-3 text-center">Registrer hendelse</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtrerteAnlegg.map(anlegg => (
+                    <tr key={anlegg.id} className="border-b text-gray-800">
+                      <td className="p-3 border-r">
+                        <input type="checkbox" onChange={() => toggleSelect(anlegg.id)} checked={selected.includes(anlegg.id)} />
+                      </td>
+                      <td className="p-3 border-r">
+                        <div className="font-semibold text-base">{anlegg.navn}</div>
+                        <div className="text-xs text-gray-600">{anlegg.adresse}</div>
+                      </td>
+                      <td className="p-3 border-r font-mono">{anlegg.unik_kode}</td>
+                      <td className="p-3 border-r">
+                        <div className="w-24 h-24 p-1 bg-white border rounded-md">
+                          <QRCode value={anlegg.qr_url || ''} size={96} />
+                        </div>
+                      </td>
+                      <td className="p-3 border-r text-center">
+                        <Link href={`/logg?kode=${anlegg.unik_kode}`} className="text-indigo-600 hover:underline">
+                          Se logg
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center">
+                        <Link href={`/registrer-hendelse?kode=${anlegg.unik_kode}`} className="text-green-600 hover:underline">
+                          Registrer
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
