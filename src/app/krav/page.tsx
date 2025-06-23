@@ -8,25 +8,25 @@ export default function KravPage() {
         <h2 className="text-xl font-semibold mb-4">NS 3960:2019 – Minsteomfang av dokumentasjon</h2>
         <div className="overflow-x-auto mb-8">
           <table className="min-w-full border text-sm text-left">
-            <thead className="bg-gray-100">
+            <thead className="bg-blue-700">
               <tr>
-                <th className="p-2 border font-bold">Innhold</th>
-                <th className="p-2 border font-bold">Beskrivelse</th>
+                <th className="p-2 border font-bold text-white">Innhold</th>
+                <th className="p-2 border font-bold text-white">Beskrivelse</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td className="p-2 border">Alarmorganisering</td><td className="p-2 border">Detaljert plan for alarmorganisering som beskriver oppbygging, funksjonalitet for det komplette brannalarmanlegg</td></tr>
-              <tr><td className="p-2 border">Godkjenninger</td><td className="p-2 border">Datablader som viser produktenes godkjenninger. Jfr. punkt 5.3</td></tr>
-              <tr><td className="p-2 border">Idriftsettelsesrapport</td><td className="p-2 border">Kontrollskjema, eventuelle målerapporter</td></tr>
-              <tr><td className="p-2 border">Opplæring</td><td className="p-2 border">Brukermanual</td></tr>
-              <tr><td className="p-2 border">Produsent</td><td className="p-2 border">Navn på leverandør, produsent og importør av produktene.</td></tr>
-              <tr><td className="p-2 border">Programmeringsdata</td><td className="p-2 border">Utskrift / tabell eller digitalt</td></tr>
-              <tr><td className="p-2 border">Prosjektering</td><td className="p-2 border">Valgte løsninger dokumenteres</td></tr>
-              <tr><td className="p-2 border">Styringsmatrise</td><td className="p-2 border">Styringsmatrise som beskriver alle styringer på anlegg der det er hensiktsmessig eller er beskrevet av kravstiller.</td></tr>
-              <tr><td className="p-2 border">Tegninger som bygget</td><td className="p-2 border">Stigeskjema, kursoversikt, deteksjonssoner, detektoroversikt med adresse, utstyrsoversikt med adresse, systemskisse der det er hensiktsmessig eller er beskrevet av kravstiller.</td></tr>
-              <tr><td className="p-2 border">Tekniske spesifikasjoner</td><td className="p-2 border">Produktdatablader</td></tr>
-              <tr><td className="p-2 border">Uavhengig kontroll</td><td className="p-2 border">Tredjeparts godkjenning der dette er relevant</td></tr>
-              <tr><td className="p-2 border">Vedlikehold</td><td className="p-2 border">Som spesifisert av produsent</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Alarmorganisering</td><td className="p-2 border">Detaljert plan for alarmorganisering som beskriver oppbygging, funksjonalitet for det komplette brannalarmanlegg</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Godkjenninger</td><td className="p-2 border">Datablader som viser produktenes godkjenninger. Jfr. punkt 5.3</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Idriftsettelsesrapport</td><td className="p-2 border">Kontrollskjema, eventuelle målerapporter</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Opplæring</td><td className="p-2 border">Brukermanual</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Produsent</td><td className="p-2 border">Navn på leverandør, produsent og importør av produktene.</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Programmeringsdata</td><td className="p-2 border">Utskrift / tabell eller digitalt</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Prosjektering</td><td className="p-2 border">Valgte løsninger dokumenteres</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Styringsmatrise</td><td className="p-2 border">Styringsmatrise som beskriver alle styringer på anlegg der det er hensiktsmessig eller er beskrevet av kravstiller.</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Tegninger som bygget</td><td className="p-2 border">Stigeskjema, kursoversikt, deteksjonssoner, detektoroversikt med adresse, utstyrsoversikt med adresse, systemskisse der det er hensiktsmessig eller er beskrevet av kravstiller.</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Tekniske spesifikasjoner</td><td className="p-2 border">Produktdatablader</td></tr>
+              <tr className="bg-white text-gray-900"><td className="p-2 border">Uavhengig kontroll</td><td className="p-2 border">Tredjeparts godkjenning der dette er relevant</td></tr>
+              <tr className="bg-gray-50 text-gray-900"><td className="p-2 border">Vedlikehold</td><td className="p-2 border">Som spesifisert av produsent</td></tr>
             </tbody>
           </table>
         </div>
