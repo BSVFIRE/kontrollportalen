@@ -87,6 +87,8 @@ function RegistrerHendelseContent() {
     setError('')
     setSuccess(false)
 
+    console.log('anleggId ved submit:', anleggId);
+
     if (!anleggId) {
       setError('Kunne ikke finne anlegg ID')
       setLoading(false)
