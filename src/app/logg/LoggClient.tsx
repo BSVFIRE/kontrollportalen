@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 type Hendelse = {
   id: string;
@@ -114,7 +112,9 @@ export default function LoggClient() {
   }, [hendelser, selectedYear, selectedType]);
 
   // PDF-eksport
-  const eksportTilPDF = () => {
+  const eksportTilPDF = async () => {
+    const jsPDF = (await import('jspdf')).default;
+    await import('jspdf-autotable');
     const doc = new jsPDF();
     doc.text('Hendelseslogg', 14, 16);
     // Lag kolonneoverskrifter og rader
