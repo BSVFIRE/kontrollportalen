@@ -216,8 +216,17 @@ function RegistrerHendelseContent() {
                 <input type="date" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={dato} onChange={e => setDato(e.target.value)} required />
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1 text-gray-900">Tid</label>
-                <input type="time" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={tid} onChange={e => setTid(e.target.value)} required step="60" />
+                <label className="block font-medium mb-1 text-gray-900">Tid (24-timers) <span title="Bruk 24-timers format, eks. 14:30 for 2:30 PM">ℹ️</span></label>
+                <input 
+                  type="time" 
+                  className="w-full border rounded px-3 py-2 text-gray-900 bg-white" 
+                  value={tid} 
+                  onChange={e => setTid(e.target.value)} 
+                  required 
+                  step="60"
+                  pattern="[0-9]{2}:[0-9]{2}"
+                  title="Bruk 24-timers format (HH:MM)"
+                />
               </div>
             </div>
             {(type === 'brannalarm' || type === 'forvarsel' || type === 'utkobling') && (
