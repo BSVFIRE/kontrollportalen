@@ -105,6 +105,15 @@ function RegistrerHendelseContent() {
     }
   }
 
+  const handleKontrollPasswordClick = () => {
+    if (kontrollPassword === KONTROLL_PASSWORD) {
+      setKontrollAuthenticated(true)
+      setKontrollPasswordError('')
+    } else {
+      setKontrollPasswordError('Feil passord')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -211,42 +220,6 @@ function RegistrerHendelseContent() {
               </select>
             </div>
 
-            {/* Kontroll password authentication */}
-            {type === 'kontroll' && !kontrollAuthenticated && (
-              <div className="p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
-                <h3 className="font-medium text-yellow-800 mb-2">Autentisering påkrevd</h3>
-                <p className="text-sm text-yellow-700 mb-3">
-                  For å registrere kontroll-hendelser må du oppgi admin-passord.
-                </p>
-                <form onSubmit={handleKontrollPasswordSubmit} className="space-y-3">
-                  <input
-                    type="password"
-                    placeholder="Skriv inn admin-passord"
-                    value={kontrollPassword}
-                    onChange={e => setKontrollPassword(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-gray-700 placeholder-gray-500"
-                    required
-                  />
-                  {kontrollPasswordError && (
-                    <div className="text-red-600 text-sm">{kontrollPasswordError}</div>
-                  )}
-                  <button
-                    type="submit"
-                    className="w-full py-2 px-4 rounded bg-yellow-600 text-white font-semibold hover:bg-yellow-700"
-                  >
-                    Autentiser
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* Show success message when kontroll is authenticated */}
-            {type === 'kontroll' && kontrollAuthenticated && (
-              <div className="p-3 border border-green-300 bg-green-50 rounded-lg">
-                <p className="text-green-800 text-sm">✓ Autentisert for kontroll-hendelser</p>
-              </div>
-            )}
-
             <div className="flex gap-2">
               <div className="flex-1">
                 <label className="block font-medium mb-1 text-gray-900">Dato</label>
@@ -330,6 +303,48 @@ function RegistrerHendelseContent() {
               Gå til hendelseslogg
             </button>
           </form>
+        )}
+
+        {/* Kontroll password authentication - outside main form */}
+        {type === 'kontroll' && !kontrollAuthenticated && (
+          <div className="p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
+            <h3 className="font-medium text-yellow-800 mb-2">Autentisering påkrevd</h3>
+            <p className="text-sm text-yellow-700 mb-3">
+              For å registrere kontroll-hendelser må du oppgi admin-passord.
+            </p>
+            <div className="space-y-3">
+              <input
+                type="password"
+                placeholder="Skriv inn admin-passord"
+                value={kontrollPassword}
+                onChange={e => setKontrollPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-gray-700 placeholder-gray-500"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleKontrollPasswordClick()
+                  }
+                }}
+              />
+              {kontrollPasswordError && (
+                <div className="text-red-600 text-sm">{kontrollPasswordError}</div>
+              )}
+              <button
+                type="button"
+                onClick={handleKontrollPasswordClick}
+                className="w-full py-2 px-4 rounded bg-yellow-600 text-white font-semibold hover:bg-yellow-700"
+              >
+                Autentiser
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Show success message when kontroll is authenticated */}
+        {type === 'kontroll' && kontrollAuthenticated && (
+          <div className="p-3 border border-green-300 bg-green-50 rounded-lg">
+            <p className="text-green-800 text-sm">✓ Autentisert for kontroll-hendelser</p>
+          </div>
         )}
       </div>
     </main>
