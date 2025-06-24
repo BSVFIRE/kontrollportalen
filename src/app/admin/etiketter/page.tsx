@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { nanoid } from 'nanoid'
+import { nanoid, customAlphabet } from 'nanoid'
 
 export default function GenererEtiketter() {
   const [antall, setAntall] = useState(1)
@@ -16,29 +16,39 @@ export default function GenererEtiketter() {
     setError('')
     
     try {
+      console.log('Starter generering av', antall, 'koder')
+      // Kun store bokstaver og tall
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+      const generateKode = customAlphabet(alphabet, 8)
       const koder = Array.from({ length: antall }, () => {
-        const kode = nanoid(8) // 8 tegn lang unik kode
+        const kode = generateKode()
         return {
           kode,
           qr_url: `${window.location.origin}/anlegg?kode=${kode}`
         }
       })
 
+      console.log('Genererte koder:', koder)
+
       // Lagre de tomme kodene i en ny tabell 'ledige_koder'
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('ledige_koder')
         .insert(koder.map(k => ({
           unik_kode: k.kode,
-          qr_url: k.qr_url,
-          opprettet: new Date().toISOString()
+          qr_url: k.qr_url
         })))
+        .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw new Error(`Database feil: ${error.message}`)
+      }
 
+      console.log('Lagret i database:', data)
       setGenererte(koder)
     } catch (err) {
       console.error('Feil ved generering av koder:', err)
-      setError('Kunne ikke generere koder')
+      setError(err instanceof Error ? err.message : 'Kunne ikke generere koder')
     } finally {
       setLoading(false)
     }
