@@ -95,16 +95,6 @@ function RegistrerHendelseContent() {
     }
   }, [type])
 
-  const handleKontrollPasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (kontrollPassword === KONTROLL_PASSWORD) {
-      setKontrollAuthenticated(true)
-      setKontrollPasswordError('')
-    } else {
-      setKontrollPasswordError('Feil passord')
-    }
-  }
-
   const handleKontrollPasswordClick = () => {
     if (kontrollPassword === KONTROLL_PASSWORD) {
       setKontrollAuthenticated(true)
