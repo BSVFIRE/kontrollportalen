@@ -166,7 +166,7 @@ function AnleggContent() {
 
           <form onSubmit={handleRegister} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-lg font-bold text-white mb-1">
                 Navn på anlegg
               </label>
               <input
@@ -174,13 +174,13 @@ function AnleggContent() {
                 value={navn}
                 onChange={(e) => setNavn(e.target.value)}
                 required
-                className="border rounded px-3 py-2 w-full text-gray-900"
+                className="border rounded px-3 py-2 w-full border-gray-400 bg-gray-800 text-white placeholder-gray-300 text-lg font-semibold"
                 placeholder="F.eks. Oslo kontor"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-lg font-bold text-white mb-1">
                 Adresse
               </label>
               <input
@@ -188,7 +188,7 @@ function AnleggContent() {
                 value={adresse}
                 onChange={(e) => setAdresse(e.target.value)}
                 required
-                className="border rounded px-3 py-2 w-full text-gray-900"
+                className="border rounded px-3 py-2 w-full border-gray-400 bg-gray-800 text-white placeholder-gray-300 text-lg font-semibold"
                 placeholder="F.eks. Karl Johans gate 1, Oslo"
               />
             </div>
