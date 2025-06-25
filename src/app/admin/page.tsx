@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import type { Anlegg, AnleggsType } from '@/lib/supabase'
 import Link from 'next/link'
+import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
 const ADMIN_PASSWORD = 'BsvFire!'
 
@@ -259,54 +260,11 @@ export default function AdminPage() {
             </Link>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="navn" className="block text-sm font-medium text-gray-700">
-                Anleggsnavn
-              </label>
-              <input
-                type="text"
-                id="navn"
-                value={navn}
-                onChange={(e) => setNavn(e.target.value)}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="adresse" className="block text-sm font-medium text-gray-700">
-                Adresse
-              </label>
-              <input
-                type="text"
-                id="adresse"
-                value={adresse}
-                onChange={(e) => setAdresse(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Velg type(r)
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {ANLEGGS_TYPER.map(type => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => toggleType(type.value)}
-                    className={`p-2 rounded border ${
-                      selectedTypes.includes(type.value)
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-300 text-gray-700'
-                    }`}
-                  >
-                    {type.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <AnleggSokOgVelg onSelect={(anlegg) => {
+              setNavn(anlegg.navn)
+              setAdresse(anlegg.adresse)
+              setSelectedTypes(anlegg.type_logg || [])
+            }} />
 
             <div className="space-y-4">
               <div>

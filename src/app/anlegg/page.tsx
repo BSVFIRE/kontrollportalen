@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { Anlegg, AnleggsType } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
+import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
 const ANLEGGS_TYPER: { value: AnleggsType; label: string }[] = [
   { value: 'brannalarm', label: 'Brannalarm' },
@@ -165,33 +166,11 @@ function AnleggContent() {
           </div>
 
           <form onSubmit={handleRegister} className="space-y-6">
-            <div>
-              <label className="block text-lg font-bold text-white mb-1">
-                Navn på anlegg
-              </label>
-              <input
-                type="text"
-                value={navn}
-                onChange={(e) => setNavn(e.target.value)}
-                required
-                className="border rounded px-3 py-2 w-full border-gray-400 bg-gray-800 text-white placeholder-gray-300 text-lg font-semibold"
-                placeholder="F.eks. Oslo kontor"
-              />
-            </div>
-
-            <div>
-              <label className="block text-lg font-bold text-white mb-1">
-                Adresse
-              </label>
-              <input
-                type="text"
-                value={adresse}
-                onChange={(e) => setAdresse(e.target.value)}
-                required
-                className="border rounded px-3 py-2 w-full border-gray-400 bg-gray-800 text-white placeholder-gray-300 text-lg font-semibold"
-                placeholder="F.eks. Karl Johans gate 1, Oslo"
-              />
-            </div>
+            <AnleggSokOgVelg onSelect={(anlegg) => {
+              setNavn(anlegg.navn)
+              setAdresse(anlegg.adresse)
+              setSelectedTypes(anlegg.type_logg || [])
+            }} />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
