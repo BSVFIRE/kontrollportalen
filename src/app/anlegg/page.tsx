@@ -169,7 +169,6 @@ function AnleggContent() {
             <AnleggSokOgVelg onSelect={(anlegg) => {
               setNavn(anlegg.navn)
               setAdresse(anlegg.adresse || '')
-              setSelectedTypes(anlegg.type_logg || [])
             }} />
 
             <div>

@@ -5,7 +5,6 @@ interface AnleggData {
   id: string
   navn: string
   adresse?: string
-  type_logg?: string[]
 }
 
 export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: AnleggData) => void }) {
