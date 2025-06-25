@@ -168,7 +168,7 @@ function AnleggContent() {
           <form onSubmit={handleRegister} className="space-y-6">
             <AnleggSokOgVelg onSelect={(anlegg) => {
               setNavn(anlegg.navn)
-              setAdresse(anlegg.adresse)
+              setAdresse(anlegg.adresse || '')
               setSelectedTypes(anlegg.type_logg || [])
             }} />
 
