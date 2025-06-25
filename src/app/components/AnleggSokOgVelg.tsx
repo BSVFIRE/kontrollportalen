@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: any) => void }) {
+interface AnleggData {
+  id: string
+  navn: string
+  adresse?: string
+  type_logg?: string[]
+}
+
+export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: AnleggData) => void }) {
   const [sok, setSok] = useState('')
-  const [sokResultat, setSokResultat] = useState<any[]>([])
+  const [sokResultat, setSokResultat] = useState<AnleggData[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {

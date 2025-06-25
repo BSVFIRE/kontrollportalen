@@ -262,9 +262,31 @@ export default function AdminPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <AnleggSokOgVelg onSelect={(anlegg) => {
               setNavn(anlegg.navn)
-              setAdresse(anlegg.adresse)
-              setSelectedTypes(anlegg.type_logg || [])
+              setAdresse(anlegg.adresse || '')
+              setSelectedTypes((anlegg.type_logg as AnleggsType[]) || [])
             }} />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Velg type(r)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {ANLEGGS_TYPER.map(type => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => toggleType(type.value)}
+                    className={`p-2 rounded border ${
+                      selectedTypes.includes(type.value)
+                        ? 'bg-blue-100 border-blue-500 text-blue-700'
+                        : 'bg-white border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-4">
               <div>
