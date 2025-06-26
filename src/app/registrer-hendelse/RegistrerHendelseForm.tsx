@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
 const HENDELSE_TYPER = [
   { value: 'brannalarm', label: 'Brannalarm' },
@@ -55,6 +56,11 @@ function RegistrerHendelseContent() {
 
   // Hent anlegg_id basert på unik kode
   const [anleggId, setAnleggId] = useState<string | null>(null)
+  const [valgtAnlegg, setValgtAnlegg] = useState<any | null>(null)
+  const [nyttAnleggNavn, setNyttAnleggNavn] = useState('')
+  const [nyttAnleggAdresse, setNyttAnleggAdresse] = useState('')
+  const [nyttAnleggType, setNyttAnleggType] = useState('')
+
   useEffect(() => {
     if (anleggKode) {
       console.log('Prøver å hente anlegg med kode:', anleggKode);
@@ -175,10 +181,66 @@ function RegistrerHendelseContent() {
     }
   }
 
+  // Opprett nytt anlegg hvis valgtAnlegg har tom id
+  const handleRegistrerNyttAnlegg = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      // Generer unik kode (f.eks. tilfeldig streng)
+      const unikKode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const { data, error } = await supabase.from('anlegg').insert([
+        {
+          navn: nyttAnleggNavn,
+          adresse: nyttAnleggAdresse,
+          type: type,
+          unik_kode: unikKode,
+        },
+      ]).select('id').single();
+      if (error) throw error;
+      setAnleggId(data.id);
+      setSuccess(true);
+    } catch (err) {
+      setError('Kunne ikke opprette nytt anlegg');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-lg w-full p-8 bg-white rounded-lg shadow space-y-6">
         <h1 className="text-2xl font-bold text-center">Registrer hendelse</h1>
+        <AnleggSokOgVelg onSelect={setValgtAnlegg} />
+        <div>
+          <label className="block font-medium mb-1 text-gray-900">Velg type(r)</label>
+          <select
+            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+            value={type}
+            onChange={e => setType(e.target.value)}
+          >
+            {HENDELSE_TYPER.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        {valgtAnlegg && !valgtAnlegg.id && (
+          <form className="space-y-4" onSubmit={handleRegistrerNyttAnlegg}>
+            <div>
+              <label className="block font-medium mb-1 text-gray-900">Navn</label>
+              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={nyttAnleggNavn} onChange={e => setNyttAnleggNavn(e.target.value)} required />
+            </div>
+            <div>
+              <label className="block font-medium mb-1 text-gray-900">Adresse</label>
+              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={nyttAnleggAdresse} onChange={e => setNyttAnleggAdresse(e.target.value)} required />
+            </div>
+            {error && <div className="text-red-500 text-center">{error}</div>}
+            <button type="submit" className="w-full py-2 px-4 rounded bg-indigo-600 text-white font-semibold" disabled={loading}>
+              {loading ? 'Lagrer...' : 'Registrer anlegg'}
+            </button>
+          </form>
+        )}
         {success ? (
           <div className="text-green-600 text-center space-y-4">
             <p>Hendelsen er registrert!</p>
@@ -197,19 +259,6 @@ function RegistrerHendelseContent() {
           </div>
         ) : (
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="block font-medium mb-1 text-gray-900">Hendelsestype</label>
-              <select
-                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                value={type}
-                onChange={e => setType(e.target.value)}
-              >
-                {HENDELSE_TYPER.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-
             <div className="flex gap-2">
               <div className="flex-1">
                 <label className="block font-medium mb-1 text-gray-900">Dato</label>
