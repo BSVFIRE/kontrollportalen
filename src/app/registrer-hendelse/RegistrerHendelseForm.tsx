@@ -29,6 +29,13 @@ const FEIL_TYPER = [
 
 const KONTROLL_PASSWORD = 'BsvFire!'
 
+// Definer en konkret type for anlegg
+interface AnleggData {
+  id: string;
+  navn: string;
+  adresse?: string;
+}
+
 function RegistrerHendelseContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -56,10 +63,9 @@ function RegistrerHendelseContent() {
 
   // Hent anlegg_id basert på unik kode
   const [anleggId, setAnleggId] = useState<string | null>(null)
-  const [valgtAnlegg, setValgtAnlegg] = useState<any | null>(null)
+  const [valgtAnlegg, setValgtAnlegg] = useState<AnleggData | null>(null)
   const [nyttAnleggNavn, setNyttAnleggNavn] = useState('')
   const [nyttAnleggAdresse, setNyttAnleggAdresse] = useState('')
-  const [nyttAnleggType, setNyttAnleggType] = useState('')
 
   useEffect(() => {
     if (anleggKode) {
