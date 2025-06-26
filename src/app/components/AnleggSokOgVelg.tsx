@@ -53,7 +53,16 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
         </ul>
       )}
       {sok.length > 2 && !loading && sokResultat.length === 0 && (
-        <div className="text-gray-500 mt-2">Ingen anlegg funnet, legg inn nytt manuelt.</div>
+        <div className="text-gray-500 mt-2 flex flex-col gap-2">
+          <span>Ingen anlegg funnet, legg inn nytt manuelt.</span>
+          <button
+            type="button"
+            className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 w-fit"
+            onClick={() => onSelect({ id: '', navn: sok, adresse: '' })}
+          >
+            Registrer nytt anlegg
+          </button>
+        </div>
       )}
     </div>
   )
