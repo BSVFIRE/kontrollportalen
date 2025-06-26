@@ -44,7 +44,7 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
           {sokResultat.map(anlegg => (
             <li
               key={anlegg.id}
-              className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+              className="px-3 py-2 hover:bg-blue-100 cursor-pointer text-gray-900"
               onClick={() => onSelect(anlegg)}
             >
               {anlegg.navn} {anlegg.adresse && `- ${anlegg.adresse}`}
