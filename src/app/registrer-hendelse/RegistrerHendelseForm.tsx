@@ -214,11 +214,25 @@ function RegistrerHendelseContent() {
     }
   };
 
+  // Når bruker trykker 'Registrer nytt anlegg', vis felter for navn og adresse og la bruker avbryte
+  const handleAvbrytNyttAnlegg = () => {
+    setValgtAnlegg(null);
+    setNyttAnleggNavn('');
+    setNyttAnleggAdresse('');
+  };
+
+  // Nullstill felter hvis bruker starter nytt søk eller velger et eksisterende anlegg
+  const handleSelectAnlegg = (anlegg: AnleggData) => {
+    setValgtAnlegg(anlegg);
+    setNyttAnleggNavn(anlegg.navn || '');
+    setNyttAnleggAdresse(anlegg.adresse || '');
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-lg w-full p-8 bg-white rounded-lg shadow space-y-6">
         <h1 className="text-2xl font-bold text-center">Registrer hendelse</h1>
-        <AnleggSokOgVelg onSelect={setValgtAnlegg} />
+        <AnleggSokOgVelg onSelect={handleSelectAnlegg} />
         <div>
           <label className="block font-medium mb-1 text-gray-900">Velg type(r)</label>
           <select
@@ -235,16 +249,21 @@ function RegistrerHendelseContent() {
           <form className="space-y-4" onSubmit={handleRegistrerNyttAnlegg}>
             <div>
               <label className="block font-medium mb-1 text-gray-900">Navn</label>
-              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={nyttAnleggNavn} onChange={e => setNyttAnleggNavn(e.target.value)} required />
+              <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={nyttAnleggNavn} onChange={e => setNyttAnleggNavn(e.target.value)} required autoFocus />
             </div>
             <div>
               <label className="block font-medium mb-1 text-gray-900">Adresse</label>
               <input type="text" className="w-full border rounded px-3 py-2 text-gray-900 bg-white" value={nyttAnleggAdresse} onChange={e => setNyttAnleggAdresse(e.target.value)} required />
             </div>
             {error && <div className="text-red-500 text-center">{error}</div>}
-            <button type="submit" className="w-full py-2 px-4 rounded bg-indigo-600 text-white font-semibold" disabled={loading}>
-              {loading ? 'Lagrer...' : 'Registrer anlegg'}
-            </button>
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 py-2 px-4 rounded bg-indigo-600 text-white font-semibold" disabled={loading}>
+                {loading ? 'Lagrer...' : 'Registrer anlegg'}
+              </button>
+              <button type="button" className="flex-1 py-2 px-4 rounded bg-gray-200 text-gray-800 font-semibold" onClick={handleAvbrytNyttAnlegg}>
+                Avbryt
+              </button>
+            </div>
           </form>
         )}
         {success ? (
