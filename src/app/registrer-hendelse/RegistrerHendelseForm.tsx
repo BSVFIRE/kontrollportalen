@@ -62,9 +62,6 @@ function RegistrerHendelseContent() {
 
   // Hent anlegg_id basert på unik kode
   const [anleggId, setAnleggId] = useState<string | null>(null)
-  const [valgtAnlegg, setValgtAnlegg] = useState<AnleggData | null>(null)
-  const [nyttAnleggNavn, setNyttAnleggNavn] = useState('')
-  const [nyttAnleggAdresse, setNyttAnleggAdresse] = useState('')
 
   useEffect(() => {
     if (anleggKode) {
