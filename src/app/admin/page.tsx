@@ -45,23 +45,24 @@ export default function AdminPage() {
     }
   }, [])
 
-  useEffect(() => {
-    const hentAlleAnlegg = async () => {
-      setLoadingAnlegg(true)
-      try {
-        const { data, error } = await supabase
-          .from('anlegg')
-          .select('*')
-          .order('opprettet', { ascending: false })
+  const hentAlleAnlegg = async () => {
+    setLoadingAnlegg(true)
+    try {
+      const { data, error } = await supabase
+        .from('anlegg')
+        .select('*')
+        .order('opprettet', { ascending: false })
 
-        if (error) throw error
-        setAlleAnlegg(data || [])
-      } catch (err) {
-        console.error('Kunne ikke hente anlegg:', err)
-      } finally {
-        setLoadingAnlegg(false)
-      }
+      if (error) throw error
+      setAlleAnlegg(data || [])
+    } catch (err) {
+      console.error('Kunne ikke hente anlegg:', err)
+    } finally {
+      setLoadingAnlegg(false)
     }
+  }
+
+  useEffect(() => {
     hentAlleAnlegg()
   }, [])
 
@@ -263,6 +264,10 @@ export default function AdminPage() {
             <AnleggSokOgVelg onSelect={(anlegg) => {
               setNavn(anlegg.navn)
               setAdresse(anlegg.adresse || '')
+              // Hvis anlegget ble flyttet fra anlegg_ikke_linket, oppdater listen
+              if (anlegg.source === 'anlegg' && anlegg.id) {
+                hentAlleAnlegg()
+              }
             }} />
 
             <div>
