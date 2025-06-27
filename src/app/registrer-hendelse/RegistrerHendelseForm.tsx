@@ -28,13 +28,6 @@ const FEIL_TYPER = [
 
 const KONTROLL_PASSWORD = 'BsvFire!'
 
-// Definer en konkret type for anlegg
-interface AnleggData {
-  id: string;
-  navn: string;
-  adresse?: string;
-}
-
 function RegistrerHendelseContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
