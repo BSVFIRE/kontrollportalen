@@ -37,6 +37,16 @@ export default function AdminPage() {
   const [pw, setPw] = useState('')
   const [pwError, setPwError] = useState('')
   const [valgtAnleggFraIkkeLinket, setValgtAnleggFraIkkeLinket] = useState<{ id: string, navn: string, adresse?: string } | null>(null)
+  
+  // Redigeringsstate
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingAnlegg, setEditingAnlegg] = useState<Anlegg | null>(null)
+  const [editNavn, setEditNavn] = useState('')
+  const [editAdresse, setEditAdresse] = useState('')
+  const [editTypes, setEditTypes] = useState<AnleggsType[]>([])
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState('')
+  const [editSuccess, setEditSuccess] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -130,6 +140,11 @@ export default function AdminPage() {
       return
     }
 
+    if (!navn.trim()) {
+      setError('Anleggsnavn er påkrevd')
+      return
+    }
+
     setLoading(true)
     setError('')
     setSuccess('')
@@ -145,12 +160,25 @@ export default function AdminPage() {
       // Sjekk om koden allerede er i bruk
       const { data: eksisterende } = await supabase
         .from('anlegg')
-        .select('id')
+        .select('id, navn')
         .eq('unik_kode', brukerKode)
         .single()
 
       if (eksisterende) {
-        setError('Denne koden er allerede i bruk')
+        setError(`Koden ${brukerKode} er allerede i bruk av anlegg: ${eksisterende.navn}`)
+        setLoading(false)
+        return
+      }
+
+      // Sjekk om anleggsnavnet allerede eksisterer (valgfritt - fjern hvis du vil tillate duplikater)
+      const { data: eksisterendeNavn } = await supabase
+        .from('anlegg')
+        .select('id, unik_kode')
+        .eq('navn', navn.trim())
+        .single()
+
+      if (eksisterendeNavn) {
+        setError(`Anlegg med navn "${navn}" eksisterer allerede med kode: ${eksisterendeNavn.unik_kode}`)
         setLoading(false)
         return
       }
@@ -160,8 +188,8 @@ export default function AdminPage() {
         .from('anlegg')
         .insert([
           {
-            navn,
-            adresse,
+            navn: navn.trim(),
+            adresse: adresse.trim() || null,
             unik_kode: brukerKode,
             qr_url: `${window.location.origin}/anlegg?kode=${brukerKode}`,
             type_logg: selectedTypes
@@ -213,6 +241,77 @@ export default function AdminPage() {
         ? prev.filter(t => t !== type)
         : [...prev, type]
     )
+  }
+
+  const toggleEditType = (type: AnleggsType) => {
+    setEditTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
+  }
+
+  const openEditModal = (anlegg: Anlegg) => {
+    setEditingAnlegg(anlegg)
+    setEditNavn(anlegg.navn)
+    setEditAdresse(anlegg.adresse || '')
+    setEditTypes(anlegg.type_logg || [])
+    setEditError('')
+    setEditSuccess('')
+    setIsEditing(true)
+  }
+
+  const closeEditModal = () => {
+    setIsEditing(false)
+    setEditingAnlegg(null)
+    setEditNavn('')
+    setEditAdresse('')
+    setEditTypes([])
+    setEditError('')
+    setEditSuccess('')
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (editTypes.length === 0) {
+      setEditError('Velg minst én type')
+      return
+    }
+
+    if (!editingAnlegg) return
+
+    setEditLoading(true)
+    setEditError('')
+    setEditSuccess('')
+
+    try {
+      // Oppdater anlegg
+      const { error: updateError } = await supabase
+        .from('anlegg')
+        .update({
+          navn: editNavn,
+          adresse: editAdresse,
+          type_logg: editTypes
+        })
+        .eq('id', editingAnlegg.id)
+
+      if (updateError) throw updateError
+
+      setEditSuccess('Anlegg oppdatert!')
+      
+      // Oppdater listen over anlegg
+      hentAlleAnlegg()
+      
+      // Lukk modal etter 2 sekunder
+      setTimeout(() => {
+        closeEditModal()
+      }, 2000)
+    } catch (err) {
+      console.error('Feil ved oppdatering:', err)
+      setEditError('Kunne ikke oppdatere anlegg')
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   // Filtrert liste basert på søk
@@ -450,9 +549,17 @@ export default function AdminPage() {
                         </Link>
                       </td>
                       <td className="p-3 text-center">
-                        <Link href={`/registrer-hendelse?kode=${anlegg.unik_kode}`} className="text-green-600 hover:underline">
-                          Registrer
-                        </Link>
+                        <div className="flex flex-col gap-2">
+                          <Link href={`/registrer-hendelse?kode=${anlegg.unik_kode}`} className="text-green-600 hover:underline">
+                            Registrer
+                          </Link>
+                          <button
+                            onClick={() => openEditModal(anlegg)}
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            Rediger
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -461,6 +568,114 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+
+        {/* Redigeringsmodal */}
+        {isEditing && editingAnlegg && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Rediger anlegg</h2>
+                <button
+                  onClick={closeEditModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleEditSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Anleggsnavn
+                  </label>
+                  <input
+                    type="text"
+                    value={editNavn}
+                    onChange={(e) => setEditNavn(e.target.value)}
+                    className="border rounded px-3 py-2 w-full text-gray-900"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adresse
+                  </label>
+                  <input
+                    type="text"
+                    value={editAdresse}
+                    onChange={(e) => setEditAdresse(e.target.value)}
+                    className="border rounded px-3 py-2 w-full text-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Unik kode (kan ikke endres)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingAnlegg.unik_kode}
+                    className="border rounded px-3 py-2 w-full text-gray-500 bg-gray-100"
+                    disabled
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Koden kan ikke endres for å unngå forvirring med QR-koder og hendelseslogger.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Velg type(r)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {ANLEGGS_TYPER.map(type => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => toggleEditType(type.value)}
+                        className={`p-2 rounded border ${
+                          editTypes.includes(type.value)
+                            ? 'bg-blue-100 border-blue-500 text-blue-700'
+                            : 'bg-white border-gray-300 text-gray-700'
+                        }`}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {editError && (
+                  <div className="text-red-500 text-sm">{editError}</div>
+                )}
+
+                {editSuccess && (
+                  <div className="text-green-500 text-sm">{editSuccess}</div>
+                )}
+
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {editLoading ? 'Oppdaterer...' : 'Oppdater anlegg'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeEditModal}
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
+                  >
+                    Avbryt
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Instruksjoner for Epson Label Editor */}
         <div className="mt-8 p-6 border rounded-lg bg-blue-50">
@@ -479,4 +694,4 @@ export default function AdminPage() {
       </div>
     </main>
   )
-} 
+}
