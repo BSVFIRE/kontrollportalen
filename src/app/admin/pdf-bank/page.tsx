@@ -273,7 +273,7 @@ export default function PdfBankPage() {
                   value={newLeverandor}
                   onChange={(e) => setNewLeverandor(e.target.value)}
                   placeholder="Leverandørnavn"
-                  className="flex-1 border rounded px-3 py-2"
+                  className="flex-1 border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -308,7 +308,7 @@ export default function PdfBankPage() {
                 <select
                   value={selectedLeverandor}
                   onChange={(e) => setSelectedLeverandor(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg leverandør</option>
                   {leverandorer.map(leverandor => (
@@ -322,7 +322,7 @@ export default function PdfBankPage() {
                   value={newSentraltype}
                   onChange={(e) => setNewSentraltype(e.target.value)}
                   placeholder="Sentraltype"
-                  className="flex-1 border rounded px-3 py-2"
+                  className="flex-1 border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -361,7 +361,7 @@ export default function PdfBankPage() {
                     setSelectedLeverandor(e.target.value)
                     setSelectedSentraltype('')
                   }}
-                  className="border rounded px-3 py-2"
+                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg leverandør</option>
                   {leverandorer.map(leverandor => (
@@ -374,7 +374,7 @@ export default function PdfBankPage() {
                 <select
                   value={selectedSentraltype}
                   onChange={(e) => setSelectedSentraltype(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={!selectedLeverandor}
                 >
                   <option value="">Velg sentraltype</option>
@@ -392,7 +392,7 @@ export default function PdfBankPage() {
                 <select
                   value={selectedAnleggsType}
                   onChange={(e) => setSelectedAnleggsType(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg anleggstype</option>
                   {ANLEGGS_TYPER.map(type => (
