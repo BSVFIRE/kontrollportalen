@@ -213,7 +213,7 @@ export default function PdfBankPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">PDF-bank Administrasjon</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900">PDF-bank Administrasjon</h1>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -264,7 +264,7 @@ export default function PdfBankPage() {
         {/* Leverandører */}
         {activeTab === 'leverandorer' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Leverandører</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">Leverandører</h2>
             
             <form onSubmit={handleAddLeverandor} className="mb-6">
               <div className="flex gap-4">
@@ -273,7 +273,7 @@ export default function PdfBankPage() {
                   value={newLeverandor}
                   onChange={(e) => setNewLeverandor(e.target.value)}
                   placeholder="Leverandørnavn"
-                  className="flex-1 border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -287,9 +287,9 @@ export default function PdfBankPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {leverandorer.map(leverandor => (
-                <div key={leverandor.id} className="border rounded p-4 bg-gray-50 dark:bg-gray-800">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{leverandor.navn}</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                <div key={leverandor.id} className="border rounded p-4 bg-gray-50">
+                  <h3 className="font-semibold">{leverandor.navn}</h3>
+                  <p className="text-sm text-gray-700">
                     {sentraltyper.filter(s => s.leverandor_id === leverandor.id).length} sentraltyper
                   </p>
                 </div>
@@ -301,14 +301,14 @@ export default function PdfBankPage() {
         {/* Sentraltyper */}
         {activeTab === 'sentraltyper' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Sentraltyper</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">Sentraltyper</h2>
             
             <form onSubmit={handleAddSentraltype} className="mb-6">
               <div className="flex gap-4">
                 <select
                   value={selectedLeverandor}
                   onChange={(e) => setSelectedLeverandor(e.target.value)}
-                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg leverandør</option>
                   {leverandorer.map(leverandor => (
@@ -322,7 +322,7 @@ export default function PdfBankPage() {
                   value={newSentraltype}
                   onChange={(e) => setNewSentraltype(e.target.value)}
                   placeholder="Sentraltype"
-                  className="flex-1 border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -336,10 +336,10 @@ export default function PdfBankPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {sentraltyper.map(sentraltype => (
-                <div key={sentraltype.id} className="border rounded p-4">
+                <div key={sentraltype.id} className="border rounded p-4 bg-gray-50">
                   <h3 className="font-semibold">{sentraltype.navn}</h3>
-                  <p className="text-sm text-gray-500">{sentraltype.leverandor.navn}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-700">{sentraltype.leverandor.navn}</p>
+                  <p className="text-sm text-gray-700">
                     {pdfDokumenter.filter(p => p.sentraltype_id === sentraltype.id).length} PDF-er
                   </p>
                 </div>
@@ -351,7 +351,7 @@ export default function PdfBankPage() {
         {/* PDF-dokumenter */}
         {activeTab === 'pdf' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">PDF-dokumenter</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">PDF-dokumenter</h2>
             
             <form onSubmit={handleUploadPdf} className="mb-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,7 +361,7 @@ export default function PdfBankPage() {
                     setSelectedLeverandor(e.target.value)
                     setSelectedSentraltype('')
                   }}
-                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg leverandør</option>
                   {leverandorer.map(leverandor => (
@@ -374,7 +374,7 @@ export default function PdfBankPage() {
                 <select
                   value={selectedSentraltype}
                   onChange={(e) => setSelectedSentraltype(e.target.value)}
-                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={!selectedLeverandor}
                 >
                   <option value="">Velg sentraltype</option>
@@ -392,7 +392,7 @@ export default function PdfBankPage() {
                 <select
                   value={selectedAnleggsType}
                   onChange={(e) => setSelectedAnleggsType(e.target.value)}
-                  className="border border-gray-400 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-400 rounded px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Velg anleggstype</option>
                   {ANLEGGS_TYPER.map(type => (
