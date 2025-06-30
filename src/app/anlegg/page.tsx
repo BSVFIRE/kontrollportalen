@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { Anlegg, AnleggsType, PdfDokumentMedSentraltype, AnleggSentraltype } from '@/lib/supabase'
+import type { Anlegg, AnleggsType, PdfDokumentMedSentraltype } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
@@ -35,7 +35,6 @@ function AnleggContent() {
 
   // PDF state
   const [pdfDokumenter, setPdfDokumenter] = useState<PdfDokumentMedSentraltype[]>([])
-  const [anleggSentraltyper, setAnleggSentraltyper] = useState<AnleggSentraltype[]>([])
   const [showPdfModal, setShowPdfModal] = useState(false)
   const [selectedAnleggsType, setSelectedAnleggsType] = useState<string>('')
 
@@ -55,7 +54,6 @@ function AnleggContent() {
 
           if (data) {
             setAnlegg(data)
-            await hentAnleggSentraltyper(data.id)
             await hentPdfDokumenter(data.id)
           } else {
             // Koden finnes ikke i anlegg-tabellen, sjekk om den finnes i ledige_koder
@@ -137,20 +135,6 @@ function AnleggContent() {
         ? prev.filter(t => t !== type)
         : [...prev, type]
     )
-  }
-
-  const hentAnleggSentraltyper = async (anleggId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('anlegg_sentraltyper')
-        .select('*')
-        .eq('anlegg_id', anleggId)
-
-      if (error) throw error
-      setAnleggSentraltyper(data || [])
-    } catch (err) {
-      console.error('Kunne ikke hente anlegg-sentraltyper:', err)
-    }
   }
 
   const hentPdfDokumenter = async (anleggId: string) => {
