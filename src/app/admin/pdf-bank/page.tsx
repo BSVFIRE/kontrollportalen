@@ -213,7 +213,7 @@ export default function PdfBankPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">PDF-bank Administrasjon</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">PDF-bank Administrasjon</h1>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -264,7 +264,7 @@ export default function PdfBankPage() {
         {/* Leverandører */}
         {activeTab === 'leverandorer' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Leverandører</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Leverandører</h2>
             
             <form onSubmit={handleAddLeverandor} className="mb-6">
               <div className="flex gap-4">
@@ -287,9 +287,9 @@ export default function PdfBankPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {leverandorer.map(leverandor => (
-                <div key={leverandor.id} className="border rounded p-4">
-                  <h3 className="font-semibold">{leverandor.navn}</h3>
-                  <p className="text-sm text-gray-500">
+                <div key={leverandor.id} className="border rounded p-4 bg-gray-50 dark:bg-gray-800">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{leverandor.navn}</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     {sentraltyper.filter(s => s.leverandor_id === leverandor.id).length} sentraltyper
                   </p>
                 </div>
