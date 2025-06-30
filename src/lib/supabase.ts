@@ -20,19 +20,17 @@ export type Anlegg = {
 export type Hendelse = {
   id: string
   anlegg_id: string
-  type: 'brannalarm' | 'forvarsel' | 'feil' | 'utkobling' | 'egenkontroll' | 'avvik' | 'kontroll' | 'utbedringer'
-  tidspunkt: string | null
-  enhet: string | null
-  arsak: string | null
-  registrert_av: string | null
-  kommentar: string | null
-  feiltype: string | null
-  sloyfe_sone: string | null
-  utkobling_tid: number | null
-  utkobling_uendelig: boolean | null
-  firma: string | null
-  anleggs_type: AnleggsType
-  opprettet: string
+  tidspunkt: string
+  type: string
+  arsak?: string
+  registrert_av?: string
+  kommentar?: string
+  feiltype?: string
+  enhet?: string
+  utkobling_tid?: string
+  utkobling_uendelig?: boolean
+  firma?: string
+  anleggs_type?: AnleggsType
 }
 
 export type Kontaktperson = {
@@ -83,4 +81,38 @@ export type Database = {
       }
     }
   }
+}
+
+// PDF Bank types
+export type Leverandor = {
+  id: string
+  navn: string
+  opprettet: string
+}
+
+export type Sentraltype = {
+  id: string
+  leverandor_id: string
+  navn: string
+  opprettet: string
+}
+
+export type PdfDokument = {
+  id: string
+  sentraltype_id: string
+  anleggs_type: string
+  tittel: string
+  filnavn: string
+  storage_path: string
+  fil_storrelse?: number
+  opprettet: string
+}
+
+// Extended types with joins
+export type SentraltypeMedLeverandor = Sentraltype & {
+  leverandor: Leverandor
+}
+
+export type PdfDokumentMedSentraltype = PdfDokument & {
+  sentraltype: SentraltypeMedLeverandor
 } 
