@@ -48,50 +48,10 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
     }
   }, [sok])
 
-  const handleAnleggSelect = async (anlegg: AnleggData) => {
-    // Hvis anlegget kommer fra anlegg_ikke_linket, flytt det til anlegg
-    if (anlegg.source === 'anlegg_ikke_linket') {
-      try {
-        // Opprett nytt anlegg i anlegg-tabellen
-        const { data: newAnlegg, error: insertError } = await supabase
-          .from('anlegg')
-          .insert([{
-            navn: anlegg.navn,
-            adresse: anlegg.adresse,
-            unik_kode: Math.random().toString(36).substring(2, 10).toUpperCase(),
-            qr_url: `${window.location.origin}/anlegg?kode=${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-            type_logg: []
-          }])
-          .select()
-          .single()
-
-        if (insertError) throw insertError
-
-        // Slett fra anlegg_ikke_linket
-        await supabase
-          .from('anlegg_ikke_linket')
-          .delete()
-          .eq('id', anlegg.id)
-
-        // Oppdater søkeresultatet
-        setSokResultat(prev => prev.filter(item => item.id !== anlegg.id))
-        
-        // Kall onSelect med det nye anlegget
-        onSelect({
-          id: newAnlegg.id,
-          navn: newAnlegg.navn,
-          adresse: newAnlegg.adresse,
-          source: 'anlegg'
-        })
-      } catch (error) {
-        console.error('Feil ved flytting av anlegg:', error)
-        // Hvis flyttingen feiler, kall onSelect med original data
-        onSelect(anlegg)
-      }
-    } else {
-      // Hvis anlegget allerede er i anlegg-tabellen, kall onSelect direkte
-      onSelect(anlegg)
-    }
+  const handleAnleggSelect = (anlegg: AnleggData) => {
+    // Kall onSelect med anlegget slik at skjemaet fylles ut
+    // La brukeren fylle ut resten av informasjonen (type, kode) før registrering
+    onSelect(anlegg)
   }
 
   return (

@@ -36,6 +36,7 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [pw, setPw] = useState('')
   const [pwError, setPwError] = useState('')
+  const [valgtAnleggFraIkkeLinket, setValgtAnleggFraIkkeLinket] = useState<{ id: string, navn: string, adresse?: string } | null>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -169,6 +170,14 @@ export default function AdminPage() {
 
       if (insertError) throw insertError
 
+      // Hvis anlegget kom fra anlegg_ikke_linket, slett det derfra
+      if (valgtAnleggFraIkkeLinket) {
+        await supabase
+          .from('anlegg_ikke_linket')
+          .delete()
+          .eq('id', valgtAnleggFraIkkeLinket.id)
+      }
+
       // Hvis vi brukte en ledig kode, slett den fra ledige_koder tabellen
       if (valgtKode) {
         await supabase
@@ -186,6 +195,10 @@ export default function AdminPage() {
       setKode('')
       setValgtKode('')
       setSelectedTypes([])
+      setValgtAnleggFraIkkeLinket(null)
+      
+      // Oppdater listen over anlegg
+      hentAlleAnlegg()
     } catch (err) {
       console.error('Feil ved registrering:', err)
       setError('Kunne ikke registrere anlegg')
@@ -264,11 +277,38 @@ export default function AdminPage() {
             <AnleggSokOgVelg onSelect={(anlegg) => {
               setNavn(anlegg.navn)
               setAdresse(anlegg.adresse || '')
-              // Hvis anlegget ble flyttet fra anlegg_ikke_linket, oppdater listen
-              if (anlegg.source === 'anlegg' && anlegg.id) {
-                hentAlleAnlegg()
+              
+              // Hvis anlegget kommer fra anlegg_ikke_linket, lagre det for senere sletting
+              if (anlegg.source === 'anlegg_ikke_linket' && anlegg.id) {
+                setValgtAnleggFraIkkeLinket({
+                  id: anlegg.id,
+                  navn: anlegg.navn,
+                  adresse: anlegg.adresse
+                })
+              } else {
+                setValgtAnleggFraIkkeLinket(null)
               }
             }} />
+
+            {valgtAnleggFraIkkeLinket && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Anlegg fra ikke-linket liste valgt:</strong> {valgtAnleggFraIkkeLinket.navn}
+                    </p>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Dette anlegget vil bli flyttet til hovedlisten når du registrerer det med type og kode.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
