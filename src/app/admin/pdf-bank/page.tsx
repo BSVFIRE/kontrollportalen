@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Leverandor, Sentraltype, PdfDokument, SentraltypeMedLeverandor, PdfDokumentMedSentraltype } from '@/lib/supabase'
+import type { Leverandor, SentraltypeMedLeverandor, PdfDokumentMedSentraltype } from '@/lib/supabase'
 
 const ANLEGGS_TYPER = [
   { value: 'brannalarm', label: 'Brannalarm' },
