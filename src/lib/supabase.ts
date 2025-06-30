@@ -115,4 +115,23 @@ export type SentraltypeMedLeverandor = Sentraltype & {
 
 export type PdfDokumentMedSentraltype = PdfDokument & {
   sentraltype: SentraltypeMedLeverandor
+}
+
+// Anlegg-Sentraltype kobling
+export type AnleggSentraltype = {
+  id: string
+  anlegg_id: string
+  sentraltype_id: string
+  opprettet: string
+}
+
+// Extended types with joins
+export type AnleggMedSentraltyper = Anlegg & {
+  anlegg_sentraltyper: (AnleggSentraltype & {
+    sentraltype: SentraltypeMedLeverandor
+  })[]
+}
+
+export type SentraltypeMedAnlegg = SentraltypeMedLeverandor & {
+  anlegg_sentraltyper: AnleggSentraltype[]
 } 

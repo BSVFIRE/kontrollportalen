@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
-import type { Anlegg, AnleggsType } from '@/lib/supabase'
+import type { Anlegg, AnleggsType, SentraltypeMedLeverandor, AnleggSentraltype } from '@/lib/supabase'
 import Link from 'next/link'
 import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
@@ -48,6 +48,13 @@ export default function AdminPage() {
   const [editError, setEditError] = useState('')
   const [editSuccess, setEditSuccess] = useState('')
 
+  // Sentraltype state
+  const [sentraltyper, setSentraltyper] = useState<SentraltypeMedLeverandor[]>([])
+  const [anleggSentraltyper, setAnleggSentraltyper] = useState<AnleggSentraltype[]>([])
+  const [selectedSentraltyper, setSelectedSentraltyper] = useState<string[]>([])
+  const [showSentraltypeModal, setShowSentraltypeModal] = useState(false)
+  const [currentAnleggForSentraltype, setCurrentAnleggForSentraltype] = useState<Anlegg | null>(null)
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (sessionStorage.getItem('admin_authed') === 'true') {
@@ -73,8 +80,40 @@ export default function AdminPage() {
     }
   }
 
+  const hentSentraltyper = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('sentraltyper')
+        .select(`
+          *,
+          leverandor:leverandorer(*)
+        `)
+        .order('navn')
+
+      if (error) throw error
+      setSentraltyper(data || [])
+    } catch (err) {
+      console.error('Kunne ikke hente sentraltyper:', err)
+    }
+  }
+
+  const hentAnleggSentraltyper = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('anlegg_sentraltyper')
+        .select('*')
+
+      if (error) throw error
+      setAnleggSentraltyper(data || [])
+    } catch (err) {
+      console.error('Kunne ikke hente anlegg-sentraltyper:', err)
+    }
+  }
+
   useEffect(() => {
     hentAlleAnlegg()
+    hentSentraltyper()
+    hentAnleggSentraltyper()
   }, [])
 
   useEffect(() => {
@@ -356,6 +395,68 @@ export default function AdminPage() {
     }
   }
 
+  const openSentraltypeModal = (anlegg: Anlegg) => {
+    setCurrentAnleggForSentraltype(anlegg)
+    // Hent eksisterende koblinger for dette anlegget
+    const eksisterendeKoblinger = anleggSentraltyper
+      .filter(kobling => kobling.anlegg_id === anlegg.id)
+      .map(kobling => kobling.sentraltype_id)
+    setSelectedSentraltyper(eksisterendeKoblinger)
+    setShowSentraltypeModal(true)
+  }
+
+  const closeSentraltypeModal = () => {
+    setShowSentraltypeModal(false)
+    setCurrentAnleggForSentraltype(null)
+    setSelectedSentraltyper([])
+  }
+
+  const handleSentraltypeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentAnleggForSentraltype) return
+
+    try {
+      // Slett eksisterende koblinger for dette anlegget
+      await supabase
+        .from('anlegg_sentraltyper')
+        .delete()
+        .eq('anlegg_id', currentAnleggForSentraltype.id)
+
+      // Legg til nye koblinger
+      if (selectedSentraltyper.length > 0) {
+        const nyeKoblinger = selectedSentraltyper.map(sentraltypeId => ({
+          anlegg_id: currentAnleggForSentraltype.id,
+          sentraltype_id: sentraltypeId
+        }))
+
+        await supabase
+          .from('anlegg_sentraltyper')
+          .insert(nyeKoblinger)
+      }
+
+      // Oppdater listen over koblinger
+      hentAnleggSentraltyper()
+      closeSentraltypeModal()
+      setSuccess('Sentraltyper oppdatert!')
+    } catch (err) {
+      console.error('Feil ved oppdatering av sentraltyper:', err)
+      setError('Kunne ikke oppdatere sentraltyper')
+    }
+  }
+
+  const toggleSentraltype = (sentraltypeId: string) => {
+    setSelectedSentraltyper(prev =>
+      prev.includes(sentraltypeId)
+        ? prev.filter(id => id !== sentraltypeId)
+        : [...prev, sentraltypeId]
+    )
+  }
+
+  const getAnleggSentraltyper = (anleggId: string) => {
+    const koblinger = anleggSentraltyper.filter(k => k.anlegg_id === anleggId)
+    return sentraltyper.filter(s => koblinger.some(k => k.sentraltype_id === s.id))
+  }
+
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
@@ -528,6 +629,7 @@ export default function AdminPage() {
                     </th>
                     <th className="p-3 border-r">Anlegg</th>
                     <th className="p-3 border-r">Unik kode</th>
+                    <th className="p-3 border-r">Sentraltyper</th>
                     <th className="p-3 border-r">QR-kode</th>
                     <th className="p-3 border-r text-center">Hendelseslogg</th>
                     <th className="p-3 text-center">Registrer hendelse</th>
@@ -544,6 +646,21 @@ export default function AdminPage() {
                         <div className="text-xs text-gray-600">{anlegg.adresse}</div>
                       </td>
                       <td className="p-3 border-r font-mono">{anlegg.unik_kode}</td>
+                      <td className="p-3 border-r">
+                        <div className="space-y-1">
+                          {getAnleggSentraltyper(anlegg.id).map(sentraltype => (
+                            <div key={sentraltype.id} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                              {sentraltype.leverandor.navn} - {sentraltype.navn}
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => openSentraltypeModal(anlegg)}
+                            className="text-xs text-blue-600 hover:underline"
+                          >
+                            {getAnleggSentraltyper(anlegg.id).length > 0 ? 'Endre' : 'Legg til'} sentraltyper
+                          </button>
+                        </div>
+                      </td>
                       <td className="p-3 border-r">
                         <div className="w-24 h-24 p-1 bg-white border rounded-md">
                           <QRCode value={anlegg.qr_url || ''} size={96} />
@@ -673,6 +790,68 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={closeEditModal}
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
+                  >
+                    Avbryt
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Sentraltype-modal */}
+        {showSentraltypeModal && currentAnleggForSentraltype && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Velg sentraltyper for {currentAnleggForSentraltype.navn}
+                </h2>
+                <button
+                  onClick={closeSentraltypeModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleSentraltypeSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Velg sentraltyper som skal være tilgjengelige for dette anlegget:
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {sentraltyper.map(sentraltype => (
+                      <button
+                        key={sentraltype.id}
+                        type="button"
+                        onClick={() => toggleSentraltype(sentraltype.id)}
+                        className={`p-3 rounded border text-left ${
+                          selectedSentraltyper.includes(sentraltype.id)
+                            ? 'bg-blue-100 border-blue-500 text-blue-700'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="font-semibold">{sentraltype.navn}</div>
+                        <div className="text-sm opacity-75">{sentraltype.leverandor.navn}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  >
+                    Lagre sentraltyper
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeSentraltypeModal}
                     className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
                   >
                     Avbryt

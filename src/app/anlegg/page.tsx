@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { Anlegg, AnleggsType } from '@/lib/supabase'
+import type { Anlegg, AnleggsType, PdfDokumentMedSentraltype, AnleggSentraltype } from '@/lib/supabase'
 import QRCode from 'react-qr-code'
 import AnleggSokOgVelg from '@/app/components/AnleggSokOgVelg'
 
@@ -33,6 +33,12 @@ function AnleggContent() {
   const [registerError, setRegisterError] = useState('')
   const [registerSuccess, setRegisterSuccess] = useState(false)
 
+  // PDF state
+  const [pdfDokumenter, setPdfDokumenter] = useState<PdfDokumentMedSentraltype[]>([])
+  const [anleggSentraltyper, setAnleggSentraltyper] = useState<AnleggSentraltype[]>([])
+  const [showPdfModal, setShowPdfModal] = useState(false)
+  const [selectedAnleggsType, setSelectedAnleggsType] = useState<string>('')
+
   useEffect(() => {
     if (kode) {
       const hentAnlegg = async () => {
@@ -49,6 +55,8 @@ function AnleggContent() {
 
           if (data) {
             setAnlegg(data)
+            await hentAnleggSentraltyper(data.id)
+            await hentPdfDokumenter(data.id)
           } else {
             // Koden finnes ikke i anlegg-tabellen, sjekk om den finnes i ledige_koder
             const { data: ledigKode } = await supabase
@@ -129,6 +137,78 @@ function AnleggContent() {
         ? prev.filter(t => t !== type)
         : [...prev, type]
     )
+  }
+
+  const hentAnleggSentraltyper = async (anleggId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('anlegg_sentraltyper')
+        .select('*')
+        .eq('anlegg_id', anleggId)
+
+      if (error) throw error
+      setAnleggSentraltyper(data || [])
+    } catch (err) {
+      console.error('Kunne ikke hente anlegg-sentraltyper:', err)
+    }
+  }
+
+  const hentPdfDokumenter = async (anleggId: string) => {
+    try {
+      // Hent sentraltyper for dette anlegget
+      const { data: anleggSentraltyperData, error: sentraltypeError } = await supabase
+        .from('anlegg_sentraltyper')
+        .select('sentraltype_id')
+        .eq('anlegg_id', anleggId)
+
+      if (sentraltypeError) throw sentraltypeError
+
+      if (anleggSentraltyperData && anleggSentraltyperData.length > 0) {
+        const sentraltypeIds = anleggSentraltyperData.map(k => k.sentraltype_id)
+        
+        // Hent PDF-dokumenter for disse sentraltypene
+        const { data: pdfData, error: pdfError } = await supabase
+          .from('pdf_dokumenter')
+          .select(`
+            *,
+            sentraltype:sentraltyper(
+              *,
+              leverandor:leverandorer(*)
+            )
+          `)
+          .in('sentraltype_id', sentraltypeIds)
+          .order('opprettet', { ascending: false })
+
+        if (pdfError) throw pdfError
+        setPdfDokumenter(pdfData || [])
+      } else {
+        setPdfDokumenter([])
+      }
+    } catch (err) {
+      console.error('Kunne ikke hente PDF-dokumenter:', err)
+      setPdfDokumenter([])
+    }
+  }
+
+  const getPdfUrl = (storagePath: string) => {
+    const { data } = supabase.storage
+      .from('pdf-bank')
+      .getPublicUrl(storagePath)
+    return data.publicUrl
+  }
+
+  const openPdfModal = (anleggsType: string) => {
+    setSelectedAnleggsType(anleggsType)
+    setShowPdfModal(true)
+  }
+
+  const closePdfModal = () => {
+    setShowPdfModal(false)
+    setSelectedAnleggsType('')
+  }
+
+  const getPdfForType = (anleggsType: string) => {
+    return pdfDokumenter.filter(pdf => pdf.anleggs_type === anleggsType)
   }
 
   if (loading) {
@@ -271,6 +351,40 @@ function AnleggContent() {
             </div>
           </div>
 
+          {/* PDF-dokumenter */}
+          {anlegg.type_logg && anlegg.type_logg.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-3 text-gray-900">PDF-dokumenter</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {anlegg.type_logg.map(type => {
+                  const pdfForType = getPdfForType(type)
+                  const typeLabel = ANLEGGS_TYPER.find(t => t.value === type)?.label || type
+                  
+                  return (
+                    <div key={type} className="border rounded-lg p-4 hover:bg-gray-50">
+                      <h4 className="font-semibold text-gray-900 mb-2">{typeLabel}</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {pdfForType.length} PDF-dokument(er) tilgjengelig
+                      </p>
+                      {pdfForType.length > 0 ? (
+                        <button
+                          onClick={() => openPdfModal(type)}
+                          className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                        >
+                          Se PDF-er
+                        </button>
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">
+                          Ingen PDF-er tilgjengelig for denne typen
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {anlegg.type_logg && anlegg.type_logg.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-3 text-gray-900">Anleggstyper</h3>
@@ -287,6 +401,82 @@ function AnleggContent() {
             </div>
           )}
         </div>
+
+        {/* PDF-modal */}
+        {showPdfModal && selectedAnleggsType && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  PDF-dokumenter for {ANLEGGS_TYPER.find(t => t.value === selectedAnleggsType)?.label || selectedAnleggsType}
+                </h2>
+                <button
+                  onClick={closePdfModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {getPdfForType(selectedAnleggsType).map(pdf => (
+                  <div key={pdf.id} className="border rounded p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{pdf.tittel}</h3>
+                        <p className="text-sm text-gray-600">
+                          {pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {pdf.filnavn} • {(pdf.fil_storrelse || 0 / 1024 / 1024).toFixed(1)} MB
+                        </p>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <a
+                          href={getPdfUrl(pdf.storage_path)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                        >
+                          Åpne PDF
+                        </a>
+                        <button
+                          onClick={() => {
+                            const url = getPdfUrl(pdf.storage_path)
+                            window.open(url, '_blank')
+                          }}
+                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                        >
+                          Last ned
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {getPdfForType(selectedAnleggsType).length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Ingen PDF-dokumenter tilgjengelig for denne typen</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Kontakt administrator for å få lagt til dokumentasjon
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={closePdfModal}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                >
+                  Lukk
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   )
