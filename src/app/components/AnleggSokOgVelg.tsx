@@ -12,6 +12,9 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
   const [sok, setSok] = useState('')
   const [sokResultat, setSokResultat] = useState<AnleggData[]>([])
   const [loading, setLoading] = useState(false)
+  const [showNewFacilityForm, setShowNewFacilityForm] = useState(false)
+  const [newFacilityName, setNewFacilityName] = useState('')
+  const [newFacilityAddress, setNewFacilityAddress] = useState('')
 
   useEffect(() => {
     if (sok.length > 2) {
@@ -54,6 +57,31 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
     onSelect(anlegg)
   }
 
+  const handleCreateNewFacility = () => {
+    setNewFacilityName(sok)
+    setShowNewFacilityForm(true)
+  }
+
+  const handleSubmitNewFacility = () => {
+    if (newFacilityName.trim()) {
+      onSelect({ 
+        id: '', 
+        navn: newFacilityName.trim(), 
+        adresse: newFacilityAddress.trim(), 
+        source: 'anlegg' 
+      })
+      setShowNewFacilityForm(false)
+      setNewFacilityName('')
+      setNewFacilityAddress('')
+    }
+  }
+
+  const handleCancelNewFacility = () => {
+    setShowNewFacilityForm(false)
+    setNewFacilityName('')
+    setNewFacilityAddress('')
+  }
+
   return (
     <div className="mb-4">
       <label className="block font-bold mb-1 text-gray-900">Søk etter eksisterende anlegg</label>
@@ -85,16 +113,68 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
           ))}
         </ul>
       )}
-      {sok.length > 2 && !loading && sokResultat.length === 0 && (
+      {sok.length > 2 && !loading && sokResultat.length === 0 && !showNewFacilityForm && (
         <div className="text-gray-500 mt-2 flex flex-col gap-2">
-          <span>Ingen anlegg funnet, legg inn nytt manuelt.</span>
+          <span>Ingen anlegg funnet. Vil du opprette et nytt anlegg?</span>
           <button
             type="button"
             className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 w-fit"
-            onClick={() => onSelect({ id: '', navn: sok, adresse: '', source: 'anlegg' })}
+            onClick={handleCreateNewFacility}
           >
             Registrer nytt anlegg
           </button>
+        </div>
+      )}
+      
+      {showNewFacilityForm && (
+        <div className="mt-4 p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <h3 className="font-semibold text-blue-900 mb-3">Opprett nytt anlegg</h3>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Anleggsnavn
+              </label>
+              <input
+                type="text"
+                value={newFacilityName}
+                onChange={(e) => setNewFacilityName(e.target.value)}
+                className="border rounded px-3 py-2 w-full text-gray-900"
+                placeholder="Skriv inn anleggsnavn"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Adresse (valgfritt)
+              </label>
+              <input
+                type="text"
+                value={newFacilityAddress}
+                onChange={(e) => setNewFacilityAddress(e.target.value)}
+                className="border rounded px-3 py-2 w-full text-gray-900"
+                placeholder="Skriv inn adresse"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSubmitNewFacility}
+                disabled={!newFacilityName.trim()}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                Legg til i skjema
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelNewFacility}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Avbryt
+              </button>
+            </div>
+            <p className="text-xs text-blue-700">
+              Anlegget vil bli lagt til i skjemaet nedenfor. Du må fortsatt velge type(r) og kode før registrering.
+            </p>
+          </div>
         </div>
       )}
     </div>
