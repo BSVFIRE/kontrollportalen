@@ -414,10 +414,8 @@ function AnleggContent() {
                   <div key={pdf.id} className="border rounded p-4 hover:bg-gray-50">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-gray-900">{pdf.tittel}</h3>
-                        <p className="text-sm text-gray-600">
-                          {pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}
-                        </p>
+                        <h3 className="font-bold text-gray-900 text-lg mb-2">{pdf.tittel}</h3>
+                        <p className="text-sm text-gray-900 font-semibold">{pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}</p>
                         <p className="text-xs text-gray-500 mt-1">
                           {pdf.filnavn} • {(pdf.fil_storrelse || 0 / 1024 / 1024).toFixed(1)} MB
                         </p>

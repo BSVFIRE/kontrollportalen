@@ -20,7 +20,7 @@
       <Height>8</Height>
       <Font>
         <Name>Arial</Name>
-        <Size>12</Size>
+        <Size>14</Size>
         <Bold>true</Bold>
       </Font>
       <Text>Loggbok - Registrer hendelse</Text>
@@ -47,8 +47,8 @@
       <Height>6</Height>
       <Font>
         <Name>Arial</Name>
-        <Size>10</Size>
-        <Bold>false</Bold>
+        <Size>12</Size>
+        <Bold>true</Bold>
       </Font>
       <Text>Kode: MQBQM7</Text>
       <Alignment>Center</Alignment>

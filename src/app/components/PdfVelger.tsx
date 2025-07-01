@@ -76,7 +76,7 @@ export default function PdfVelger({ anleggsType, onClose }: PdfVelgerProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-bold text-gray-900">
             PDF-installasjoner for {anleggsType}
           </h2>
           <button
@@ -107,7 +107,7 @@ export default function PdfVelger({ anleggsType, onClose }: PdfVelgerProps) {
                     setSelectedLeverandor(e.target.value)
                     setSelectedSentraltype('')
                   }}
-                  className="border rounded px-3 py-2"
+                  className="border rounded px-3 py-2 bg-white text-gray-900 font-semibold shadow-sm"
                 >
                   <option value="">Alle leverandører</option>
                   {leverandorer.map(leverandor => (
@@ -120,7 +120,7 @@ export default function PdfVelger({ anleggsType, onClose }: PdfVelgerProps) {
                 <select
                   value={selectedSentraltype}
                   onChange={(e) => setSelectedSentraltype(e.target.value)}
-                  className="border rounded px-3 py-2"
+                  className="border rounded px-3 py-2 bg-white text-gray-900 font-semibold shadow-sm"
                   disabled={!selectedLeverandor}
                 >
                   <option value="">Alle sentraltyper</option>
@@ -139,10 +139,8 @@ export default function PdfVelger({ anleggsType, onClose }: PdfVelgerProps) {
                 <div key={pdf.id} className="border rounded p-4 hover:bg-gray-50">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{pdf.tittel}</h3>
-                      <p className="text-sm text-gray-600">
-                        {pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}
-                      </p>
+                      <h3 className="font-bold text-gray-900 text-lg">{pdf.tittel}</h3>
+                      <p className="text-sm text-gray-900 font-semibold">{pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}</p>
                       <p className="text-xs text-gray-500 mt-1">
                         {pdf.filnavn} • {(pdf.fil_storrelse || 0 / 1024 / 1024).toFixed(1)} MB
                       </p>

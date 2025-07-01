@@ -122,7 +122,7 @@ export default function GenererEtiketter() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Generer Tomme Etiketter</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900">Generer Tomme Etiketter</h1>
         
         <form onSubmit={genererKoder} className="mb-8 space-y-4">
           <div>
@@ -162,10 +162,10 @@ export default function GenererEtiketter() {
             </button>
             
             <div className="border rounded p-4 bg-gray-50">
-              <h2 className="font-semibold mb-2">Genererte koder:</h2>
+              <h2 className="font-bold mb-2 text-gray-900">Genererte koder:</h2>
               <ul className="space-y-1">
                 {genererte.map(k => (
-                  <li key={k.kode} className="font-mono">{k.kode}</li>
+                  <li key={k.kode} className="font-mono text-lg font-bold text-gray-900">{k.kode}</li>
                 ))}
               </ul>
             </div>

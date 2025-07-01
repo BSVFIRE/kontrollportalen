@@ -293,7 +293,7 @@ export default function PdfBankPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {leverandorer.map(leverandor => (
                 <div key={leverandor.id} className="border rounded p-4 bg-gray-50">
-                  <h3 className="font-semibold">{leverandor.navn}</h3>
+                  <h3 className="font-bold text-gray-900 text-lg">{leverandor.navn}</h3>
                   <p className="text-sm text-gray-700">
                     {sentraltyper.filter(s => s.leverandor_id === leverandor.id).length} sentraltyper
                   </p>
@@ -342,8 +342,8 @@ export default function PdfBankPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {sentraltyper.map(sentraltype => (
                 <div key={sentraltype.id} className="border rounded p-4 bg-gray-50">
-                  <h3 className="font-semibold">{sentraltype.navn}</h3>
-                  <p className="text-sm text-gray-700">{sentraltype.leverandor.navn}</p>
+                  <h3 className="font-bold text-gray-900 text-lg">{sentraltype.navn}</h3>
+                  <p className="text-sm text-gray-900 font-semibold">{sentraltype.leverandor.navn}</p>
                   <p className="text-sm text-gray-700">
                     {pdfDokumenter.filter(p => p.sentraltype_id === sentraltype.id).length} PDF-er
                   </p>
@@ -412,7 +412,7 @@ export default function PdfBankPage() {
                   value={pdfTittel}
                   onChange={(e) => setPdfTittel(e.target.value)}
                   placeholder="PDF-tittel"
-                  className="border rounded px-3 py-2"
+                  className="border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-700 font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
@@ -421,7 +421,7 @@ export default function PdfBankPage() {
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-                  className="border rounded px-3 py-2 w-full"
+                  className="border rounded px-3 py-2 w-full text-gray-900 font-semibold bg-white file:font-semibold file:text-gray-900 file:bg-gray-200 file:border-0 file:rounded file:px-3 file:py-2 file:shadow-sm"
                 />
               </div>
               
@@ -438,10 +438,8 @@ export default function PdfBankPage() {
               {pdfDokumenter.map(pdf => (
                 <div key={pdf.id} className="border rounded p-4 flex justify-between items-center">
                   <div>
-                    <h3 className="font-semibold">{pdf.tittel}</h3>
-                    <p className="text-sm text-gray-600">
-                      {pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn} - {pdf.anleggs_type}
-                    </p>
+                    <h3 className="font-bold text-gray-900 text-lg">{pdf.tittel}</h3>
+                    <p className="text-sm text-gray-900 font-semibold">{pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn} - {pdf.anleggs_type}</p>
                     <p className="text-sm text-gray-500">{pdf.filnavn}</p>
                   </div>
                   <div className="flex gap-2">
