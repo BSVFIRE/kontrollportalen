@@ -174,11 +174,16 @@ function AnleggContent() {
     }
   }
 
-  const getPdfUrl = (storagePath: string) => {
-    const { data } = supabase.storage
+  // Hent signert URL for PDF
+  const getSignedPdfUrl = async (storagePath: string) => {
+    const { data, error } = await supabase.storage
       .from('pdf-bank')
-      .getPublicUrl(storagePath)
-    return data.publicUrl
+      .createSignedUrl(storagePath, 60 * 60) // 1 time
+    if (error) {
+      alert('Kunne ikke hente PDF-lenke: ' + error.message)
+      return null
+    }
+    return data?.signedUrl || null
   }
 
   const openPdfModal = (anleggsType: string) => {
@@ -409,7 +414,7 @@ function AnleggContent() {
                   <div key={pdf.id} className="border rounded p-4 hover:bg-gray-50">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{pdf.tittel}</h3>
+                        <h3 className="font-semibold text-lg text-gray-900">{pdf.tittel}</h3>
                         <p className="text-sm text-gray-600">
                           {pdf.sentraltype.leverandor.navn} - {pdf.sentraltype.navn}
                         </p>
@@ -418,18 +423,19 @@ function AnleggContent() {
                         </p>
                       </div>
                       <div className="flex gap-2 ml-4">
-                        <a
-                          href={getPdfUrl(pdf.storage_path)}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={async () => {
+                            const url = await getSignedPdfUrl(pdf.storage_path)
+                            if (url) window.open(url, '_blank')
+                          }}
                           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                         >
                           Åpne PDF
-                        </a>
+                        </button>
                         <button
-                          onClick={() => {
-                            const url = getPdfUrl(pdf.storage_path)
-                            window.open(url, '_blank')
+                          onClick={async () => {
+                            const url = await getSignedPdfUrl(pdf.storage_path)
+                            if (url) window.open(url, '_blank')
                           }}
                           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
                         >
