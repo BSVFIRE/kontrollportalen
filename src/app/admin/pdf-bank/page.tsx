@@ -130,10 +130,15 @@ export default function PdfBankPage() {
     }
 
     try {
-      // Opprett storage path
-      const leverandor = sentraltyper.find(s => s.id === selectedSentraltype)?.leverandor.navn
-      const sentraltype = sentraltyper.find(s => s.id === selectedSentraltype)?.navn
-      const storagePath = `pdf-bank/${leverandor?.toLowerCase()}/${sentraltype?.toLowerCase()}/${selectedAnleggsType}/${pdfFile.name}`
+      // Gjør leverandør, sentraltype og filnavn "safe"
+      const leverandor = sentraltyper.find(s => s.id === selectedSentraltype)?.leverandor.navn || ''
+      const sentraltype = sentraltyper.find(s => s.id === selectedSentraltype)?.navn || ''
+      const safeLeverandor = leverandor.toLowerCase().replace(/ /g, '_').normalize('NFKD').replace(/[^\w.-]/g, '')
+      const safeSentraltype = sentraltype.toLowerCase().replace(/ /g, '_').normalize('NFKD').replace(/[^\w.-]/g, '')
+      const safeAnleggsType = selectedAnleggsType.toLowerCase().replace(/ /g, '_').normalize('NFKD').replace(/[^\w.-]/g, '')
+      const safeFileName = pdfFile.name.replace(/ /g, '_').normalize('NFKD').replace(/[^\w.-]/g, '')
+      // NB: Ikke ha bucket-navn i path!
+      const storagePath = `${safeLeverandor}/${safeSentraltype}/${safeAnleggsType}/${safeFileName}`
 
       // Last opp fil til Supabase Storage
       const { error: uploadError } = await supabase.storage
