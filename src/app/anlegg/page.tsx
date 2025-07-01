@@ -37,6 +37,7 @@ function AnleggContent() {
   const [pdfDokumenter, setPdfDokumenter] = useState<PdfDokumentMedSentraltype[]>([])
   const [showPdfModal, setShowPdfModal] = useState(false)
   const [selectedAnleggsType, setSelectedAnleggsType] = useState<string>('')
+  const [pdfUrls, setPdfUrls] = useState<{ [pdfId: string]: string }>({})
 
   useEffect(() => {
     if (kode) {
@@ -83,6 +84,24 @@ function AnleggContent() {
       setLoading(false)
     }
   }, [kode])
+
+  useEffect(() => {
+    if (showPdfModal && selectedAnleggsType) {
+      // Hent signed URLs for alle PDF-er for valgt type
+      const fetchUrls = async () => {
+        const pdfs = getPdfForType(selectedAnleggsType);
+        const urls: { [pdfId: string]: string } = {};
+        for (const pdf of pdfs) {
+          const url = await getSignedPdfUrl(pdf.storage_path);
+          if (url) urls[pdf.id] = url;
+        }
+        setPdfUrls(urls);
+      };
+      fetchUrls();
+    } else {
+      setPdfUrls({});
+    }
+  }, [showPdfModal, selectedAnleggsType]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -421,24 +440,25 @@ function AnleggContent() {
                         </p>
                       </div>
                       <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={async () => {
-                            const url = await getSignedPdfUrl(pdf.storage_path)
-                            if (url) window.open(url, '_blank')
-                          }}
+                        <a
+                          href={pdfUrls[pdf.id] || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                          style={{ pointerEvents: pdfUrls[pdf.id] ? 'auto' : 'none', opacity: pdfUrls[pdf.id] ? 1 : 0.5 }}
                         >
                           Åpne PDF
-                        </button>
-                        <button
-                          onClick={async () => {
-                            const url = await getSignedPdfUrl(pdf.storage_path)
-                            if (url) window.open(url, '_blank')
-                          }}
+                        </a>
+                        <a
+                          href={pdfUrls[pdf.id] || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
                           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                          style={{ pointerEvents: pdfUrls[pdf.id] ? 'auto' : 'none', opacity: pdfUrls[pdf.id] ? 1 : 0.5 }}
                         >
                           Last ned
-                        </button>
+                        </a>
                       </div>
                     </div>
                   </div>
