@@ -54,6 +54,28 @@ export default function GenererEtiketter() {
     }
   }
 
+  const eksporterTilCSV = () => {
+    if (genererte.length === 0) return
+
+    // Opprett CSV-innhold med tom anleggsnavn
+    const headers = ['anlegg_navn', 'unik_kode', 'qr_url']
+    const csvContent = [
+      headers.join(','),
+      ...genererte.map(k => `,${k.kode},${k.qr_url}`)
+    ].join('\n')
+
+    // Opprett og last ned fil
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `tomme_etiketter_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const skrivUtEtiketter = () => {
     // Åpne utskriftsvindu med etikettene
     const printWindow = window.open('', '_blank')
@@ -66,7 +88,7 @@ export default function GenererEtiketter() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Etiketter</title>
+          <title>Tomme Etiketter</title>
           <style>
             body {
               margin: 0;
@@ -82,6 +104,19 @@ export default function GenererEtiketter() {
               display: inline-block;
               text-align: center;
             }
+            .tittel {
+              font-size: 16px;
+              font-weight: bold;
+              margin: 5px 0;
+              color: #666;
+            }
+            .anleggsnavn {
+              font-size: 18px;
+              font-weight: bold;
+              margin: 10px 0;
+              color: #999;
+              font-style: italic;
+            }
             .kode {
               font-size: 24px;
               font-weight: bold;
@@ -89,6 +124,11 @@ export default function GenererEtiketter() {
             }
             .qr-code {
               margin: 10px 0;
+            }
+            .instruksjon {
+              font-size: 12px;
+              color: #666;
+              margin-top: 10px;
             }
             @media print {
               .etikett {
@@ -100,14 +140,15 @@ export default function GenererEtiketter() {
         <body>
           ${genererte.map(k => `
             <div class="etikett">
+              <div class="tittel">Kontrollportal</div>
+              <div class="anleggsnavn">[Tom - fylles ved første scanning]</div>
               <div class="kode">${k.kode}</div>
               <div class="qr-code">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(k.qr_url)}" 
                      alt="QR Kode" 
                      style="width: 150px; height: 150px;" />
               </div>
-              <div>Scan QR-koden eller besøk:</div>
-              <div style="margin-top: 5px;">${window.location.origin}/anlegg</div>
+              <div class="instruksjon">Scan QR-koden for å registrere anlegg</div>
             </div>
           `).join('')}
         </body>
@@ -154,12 +195,20 @@ export default function GenererEtiketter() {
 
         {genererte.length > 0 && (
           <div className="space-y-4">
-            <button
-              onClick={skrivUtEtiketter}
-              className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
-            >
-              Skriv ut {genererte.length} etiketter
-            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={eksporterTilCSV}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+              >
+                Eksporter til CSV ({genererte.length} etiketter)
+              </button>
+              <button
+                onClick={skrivUtEtiketter}
+                className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+              >
+                Skriv ut {genererte.length} etiketter
+              </button>
+            </div>
             
             <div className="border rounded p-4 bg-gray-50">
               <h2 className="font-bold mb-2 text-gray-900">Genererte koder:</h2>
