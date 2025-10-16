@@ -1,0 +1,32 @@
+name: Sync Firebase
+
+on:
+  schedule:
+    # Kjører hver dag kl 03:00 UTC (04:00 norsk tid sommertid, 05:00 vintertid)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Tillater manuell kjøring
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run sync
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          FIREBASE_SUPABASE_URL: ${{ secrets.FIREBASE_SUPABASE_URL }}
+          FIREBASE_SUPABASE_SERVICE_KEY: ${{ secrets.FIREBASE_SUPABASE_SERVICE_KEY }}
+        run: npm run sync:firebase
