@@ -77,7 +77,7 @@ export default function GenererEtiketter() {
   }
 
   const skrivUtEtiketter = () => {
-    // Åpne utskriftsvindu med etikettene
+    // Åpne utskriftsvindu med etikettene - 75x55mm format for Epson TM-C3500
     const printWindow = window.open('', '_blank')
     if (!printWindow) {
       setError('Kunne ikke åpne utskriftsvindu. Sjekk at popup-vinduer er tillatt.')
@@ -88,51 +88,119 @@ export default function GenererEtiketter() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Tomme Etiketter</title>
+          <title>Kontrollportal Etiketter</title>
           <style>
+            @page {
+              size: 75mm 55mm;
+              margin: 0;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
             body {
               margin: 0;
-              padding: 20px;
+              padding: 0;
               font-family: Arial, sans-serif;
             }
             .etikett {
-              border: 1px solid #ccc;
-              padding: 15px;
-              margin: 10px;
-              width: 300px;
+              width: 75mm;
+              height: 55mm;
+              padding: 3mm;
+              page-break-after: always;
               page-break-inside: avoid;
-              display: inline-block;
+              display: flex;
+              flex-direction: row;
+              background: white;
+              position: relative;
+            }
+            .etikett:last-child {
+              page-break-after: auto;
+            }
+            .venstre-kolonne {
+              writing-mode: vertical-rl;
+              text-orientation: mixed;
+              transform: rotate(180deg);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 12mm;
+              background: #1a1a2e;
+              color: white;
+              font-size: 8pt;
+              font-weight: bold;
+              letter-spacing: 1px;
+              padding: 2mm;
+            }
+            .midt-seksjon {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: space-between;
+              padding: 2mm 3mm;
+            }
+            .logo-seksjon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .bsv-logo {
+              height: 10mm;
+              width: auto;
+            }
+            .registrer-seksjon {
               text-align: center;
             }
-            .tittel {
-              font-size: 16px;
+            .registrer-tittel {
+              font-size: 6pt;
               font-weight: bold;
-              margin: 5px 0;
+              color: #333;
+              margin-bottom: 1mm;
+            }
+            .registrer-tekst {
+              font-size: 5pt;
               color: #666;
             }
-            .anleggsnavn {
-              font-size: 18px;
+            .kode-seksjon {
+              text-align: center;
+            }
+            .kode-label {
+              font-size: 6pt;
+              color: #333;
+            }
+            .kode-verdi {
+              font-size: 12pt;
               font-weight: bold;
-              margin: 10px 0;
-              color: #999;
-              font-style: italic;
+              color: #ff6b00;
             }
-            .kode {
-              font-size: 24px;
+            .qr-seksjon {
+              display: flex;
+              justify-content: center;
+            }
+            .qr-seksjon img {
+              width: 18mm;
+              height: 18mm;
+            }
+            .hoyre-kolonne {
+              writing-mode: vertical-rl;
+              text-orientation: mixed;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 10mm;
+              background: #1a1a2e;
+              color: white;
+              font-size: 7pt;
               font-weight: bold;
-              margin: 10px 0;
-            }
-            .qr-code {
-              margin: 10px 0;
-            }
-            .instruksjon {
-              font-size: 12px;
-              color: #666;
-              margin-top: 10px;
+              letter-spacing: 0.5px;
+              padding: 2mm;
             }
             @media print {
-              .etikett {
-                border: 1px solid #000;
+              body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
               }
             }
           </style>
@@ -140,15 +208,24 @@ export default function GenererEtiketter() {
         <body>
           ${genererte.map(k => `
             <div class="etikett">
-              <div class="tittel">Kontrollportal</div>
-              <div class="anleggsnavn">[Tom - fylles ved første scanning]</div>
-              <div class="kode">${k.kode}</div>
-              <div class="qr-code">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(k.qr_url)}" 
-                     alt="QR Kode" 
-                     style="width: 150px; height: 150px;" />
+              <div class="venstre-kolonne">WWW.KONTROLLPORTAL.NO</div>
+              <div class="midt-seksjon">
+                <div class="logo-seksjon">
+                  <img src="https://bsvfire.no/wp-content/uploads/2023/01/BSV-logo.png" alt="BSV" class="bsv-logo" onerror="this.style.display='none'" />
+                </div>
+                <div class="registrer-seksjon">
+                  <div class="registrer-tittel">REGISTRER NY HENDELSE:</div>
+                  <div class="registrer-tekst">Benytt QR kode eller anleggsside på www.kontrollportal.no</div>
+                </div>
+                <div class="kode-seksjon">
+                  <div class="kode-label">UNIK ANLEGGS KODE:</div>
+                  <div class="kode-verdi">${k.kode}</div>
+                </div>
+                <div class="qr-seksjon">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(k.qr_url)}" alt="QR" />
+                </div>
               </div>
-              <div class="instruksjon">Scan QR-koden for å registrere anlegg</div>
+              <div class="hoyre-kolonne">DIGITAL LOGGBOK BRANNSENTRAL</div>
             </div>
           `).join('')}
         </body>
@@ -157,7 +234,11 @@ export default function GenererEtiketter() {
 
     printWindow.document.write(html)
     printWindow.document.close()
-    printWindow.print()
+    
+    // Vent på at bildene lastes før utskrift
+    printWindow.onload = () => {
+      setTimeout(() => printWindow.print(), 500)
+    }
   }
 
   return (
