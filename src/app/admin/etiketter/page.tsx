@@ -161,7 +161,7 @@ export default function GenererEtiketter() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-8 bg-white">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-gray-900">Generer Tomme Etiketter</h1>
         

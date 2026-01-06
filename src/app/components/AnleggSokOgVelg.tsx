@@ -84,12 +84,12 @@ export default function AnleggSokOgVelg({ onSelect }: { onSelect: (anlegg: Anleg
 
   return (
     <div className="mb-4">
-      <label className="block font-bold mb-1 text-gray-900">Søk etter eksisterende anlegg</label>
+      <label className="block font-bold mb-1 text-black">Søk etter eksisterende anlegg</label>
       <input
         type="text"
         value={sok}
         onChange={e => setSok(e.target.value)}
-        className="border rounded px-3 py-2 w-full text-gray-900 placeholder-gray-500"
+        className="border-2 border-gray-400 rounded px-4 py-3 w-full text-black placeholder-gray-600 bg-white focus:border-blue-600 focus:outline-none text-lg font-medium"
         placeholder="Skriv inn navn på anlegg"
       />
       {loading && <div className="text-gray-500 mt-2">Laster...</div>}

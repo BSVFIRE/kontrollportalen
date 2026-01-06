@@ -207,7 +207,7 @@ export default function PdfBankPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">Laster PDF-bank...</div>
         </div>
@@ -216,7 +216,7 @@ export default function PdfBankPage() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-8 bg-white">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-gray-900">PDF-bank Administrasjon</h1>
 

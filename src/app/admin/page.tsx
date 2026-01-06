@@ -458,7 +458,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-8 bg-white">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-gray-900">Admin Panel - Kontrollportal</h1>
 
