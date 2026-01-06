@@ -1,14 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { customAlphabet } from 'nanoid'
+
+interface LedigKode {
+  id: string
+  unik_kode: string
+  qr_url: string
+  opprettet: string
+}
 
 export default function GenererEtiketter() {
   const [antall, setAntall] = useState(1)
   const [genererte, setGenererte] = useState<{ kode: string; qr_url: string }[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [ledigeKoder, setLedigeKoder] = useState<LedigKode[]>([])
+  const [loadingLedige, setLoadingLedige] = useState(true)
+  const [valgteKoder, setValgteKoder] = useState<string[]>([])
+
+  // Hent eksisterende ledige koder ved oppstart
+  useEffect(() => {
+    hentLedigeKoder()
+  }, [])
+
+  const hentLedigeKoder = async () => {
+    setLoadingLedige(true)
+    try {
+      const { data, error } = await supabase
+        .from('ledige_koder')
+        .select('*')
+        .order('opprettet', { ascending: false })
+
+      if (error) throw error
+      setLedigeKoder(data || [])
+    } catch (err) {
+      console.error('Feil ved henting av ledige koder:', err)
+    } finally {
+      setLoadingLedige(false)
+    }
+  }
+
+  const toggleKodeValg = (kode: string) => {
+    setValgteKoder(prev => 
+      prev.includes(kode) 
+        ? prev.filter(k => k !== kode)
+        : [...prev, kode]
+    )
+  }
+
+  const velgAlle = () => {
+    if (valgteKoder.length === ledigeKoder.length) {
+      setValgteKoder([])
+    } else {
+      setValgteKoder(ledigeKoder.map(k => k.unik_kode))
+    }
+  }
+
+  const brukValgteKoder = () => {
+    const valgte = ledigeKoder
+      .filter(k => valgteKoder.includes(k.unik_kode))
+      .map(k => ({ kode: k.unik_kode, qr_url: k.qr_url }))
+    setGenererte(valgte)
+  }
 
   const genererKoder = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +101,8 @@ export default function GenererEtiketter() {
 
       console.log('Lagret i database:', data)
       setGenererte(koder)
+      // Oppdater listen over ledige koder
+      hentLedigeKoder()
     } catch (err) {
       console.error('Feil ved generering av koder:', err)
       setError(err instanceof Error ? err.message : 'Kunne ikke generere koder')
@@ -243,32 +300,87 @@ export default function GenererEtiketter() {
 
   return (
     <main className="min-h-screen p-8 bg-white">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-gray-900">Generer Tomme Etiketter</h1>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6 text-gray-900">Etiketter</h1>
         
-        <form onSubmit={genererKoder} className="mb-8 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Antall etiketter
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={antall}
-              onChange={(e) => setAntall(parseInt(e.target.value))}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
+        {/* Eksisterende ledige koder */}
+        <div className="mb-8 p-6 border rounded-lg bg-gray-50">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Eksisterende blanke etiketter</h2>
           
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Genererer...' : 'Generer Etiketter'}
-          </button>
-        </form>
+          {loadingLedige ? (
+            <div className="text-gray-500">Laster...</div>
+          ) : ledigeKoder.length === 0 ? (
+            <div className="text-gray-500">Ingen blanke etiketter funnet. Generer nye nedenfor.</div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">{ledigeKoder.length} blanke etiketter tilgjengelig</span>
+                <button
+                  type="button"
+                  onClick={velgAlle}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {valgteKoder.length === ledigeKoder.length ? 'Fjern alle' : 'Velg alle'}
+                </button>
+              </div>
+              
+              <div className="max-h-48 overflow-y-auto border rounded bg-white p-2">
+                {ledigeKoder.map(kode => (
+                  <label key={kode.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={valgteKoder.includes(kode.unik_kode)}
+                      onChange={() => toggleKodeValg(kode.unik_kode)}
+                      className="w-4 h-4"
+                    />
+                    <span className="font-mono font-bold text-gray-900">{kode.unik_kode}</span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(kode.opprettet).toLocaleDateString('nb-NO')}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              
+              {valgteKoder.length > 0 && (
+                <button
+                  type="button"
+                  onClick={brukValgteKoder}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+                >
+                  Bruk {valgteKoder.length} valgte etiketter
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Generer nye etiketter */}
+        <div className="mb-8 p-6 border rounded-lg bg-blue-50">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Generer nye etiketter</h2>
+          <form onSubmit={genererKoder} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Antall etiketter
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={antall}
+                onChange={(e) => setAntall(parseInt(e.target.value))}
+                className="border rounded px-3 py-2 w-full text-gray-900"
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? 'Genererer...' : 'Generer nye etiketter'}
+            </button>
+          </form>
+        </div>
 
         {error && (
           <div className="text-red-500 mb-4">{error}</div>
