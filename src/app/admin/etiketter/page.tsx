@@ -292,10 +292,11 @@ export default function GenererEtiketter() {
     printWindow.document.write(html)
     printWindow.document.close()
     
-    // Vent på at bildene lastes før utskrift
-    printWindow.onload = () => {
-      setTimeout(() => printWindow.print(), 500)
-    }
+    // Vis instruksjoner før utskrift
+    setTimeout(() => {
+      alert('VIKTIG for Epson TM-C3500:\\n\\n1. I utskriftsdialogen, velg "Papirstørrelse"\\n2. Velg "Administrer egendefinerte størrelser..."\\n3. Opprett ny størrelse: 75mm x 55mm\\n4. Sett alle marger til 0\\n5. Velg denne størrelsen og skriv ut')
+      printWindow.print()
+    }, 500)
   }
 
   return (
