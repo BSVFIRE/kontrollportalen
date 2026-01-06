@@ -148,7 +148,7 @@ export default function GenererEtiketter() {
           <title>Kontrollportal Etiketter</title>
           <style>
             @page {
-              size: 75mm 55mm;
+              size: 76mm 50mm;
               margin: 0;
             }
             * {
@@ -162,8 +162,8 @@ export default function GenererEtiketter() {
               font-family: Arial, sans-serif;
             }
             .etikett {
-              width: 75mm;
-              height: 55mm;
+              width: 76mm;
+              height: 50mm;
               padding: 3mm;
               page-break-after: always;
               page-break-inside: avoid;
@@ -294,7 +294,7 @@ export default function GenererEtiketter() {
     
     // Vis instruksjoner før utskrift
     setTimeout(() => {
-      alert('VIKTIG for Epson TM-C3500:\\n\\n1. I utskriftsdialogen, velg "Papirstørrelse"\\n2. Velg "Administrer egendefinerte størrelser..."\\n3. Opprett ny størrelse: 75mm x 55mm\\n4. Sett alle marger til 0\\n5. Velg denne størrelsen og skriv ut')
+      alert('VIKTIG for Epson TM-C3500:\\n\\n1. I utskriftsdialogen, velg "Papirstørrelse"\\n2. Velg 76mm x 50mm (samme som din NiceLabel-mal)\\n3. Sett alle marger til 0\\n4. Skriv ut')
       printWindow.print()
     }, 500)
   }
