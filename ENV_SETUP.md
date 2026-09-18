@@ -43,7 +43,7 @@ Når noen skanner en etikett som ikke er koblet, viser portalen en lenke til Fir
 teknikeren kobler den. Sett adressen til FireCtrl-appen:
 
 ```
-NEXT_PUBLIC_FIRECTRL_URL=https://<din-fireCtrl-adresse>
+NEXT_PUBLIC_FIRECTRL_URL=https://app.firectrl.io
 ```
 
 FireCtrl sender koblinger til `POST /api/koder/koble` med `x-api-key: FIREBASE_SYNC_API_KEY`

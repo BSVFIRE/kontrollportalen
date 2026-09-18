@@ -241,7 +241,7 @@ function AnleggContent() {
   }
 
   if (isRegistering && !visManuell) {
-    const firectrlUrl = (process.env.NEXT_PUBLIC_FIRECTRL_URL || 'https://app.firectrl.no').replace(/\/$/, '')
+    const firectrlUrl = (process.env.NEXT_PUBLIC_FIRECTRL_URL || 'https://app.firectrl.io').replace(/\/$/, '')
     return (
       <main className="min-h-screen p-8 bg-white">
         <div className="max-w-xl mx-auto text-center space-y-6">
