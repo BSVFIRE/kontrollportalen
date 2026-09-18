@@ -44,10 +44,9 @@ function VelgTypeContent() {
     const hentAnlegg = async () => {
       try {
         const { data: anlegg, error } = await supabase
-          .from('anlegg')
+          .rpc('anlegg_for_kode', { p_kode: kode })
           .select('type_logg')
-          .eq('unik_kode', kode)
-          .single()
+          .maybeSingle()
 
         if (error) throw error
         if (anlegg?.type_logg) {

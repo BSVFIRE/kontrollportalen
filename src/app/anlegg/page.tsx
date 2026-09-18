@@ -24,6 +24,9 @@ function AnleggContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
+  // Koden ligger i den gamle «ledige_koder»-bunken → manuell registrering er fortsatt mulig
+  const [kanRegistrereManuelt, setKanRegistrereManuelt] = useState(false)
+  const [visManuell, setVisManuell] = useState(false)
   
   // Registreringsskjema state
   const [navn, setNavn] = useState('')
@@ -43,33 +46,29 @@ function AnleggContent() {
     if (kode) {
       const hentAnlegg = async () => {
         try {
-          const { data, error } = await supabase
-            .from('anlegg')
-            .select('*')
-            .eq('unik_kode', kode)
-            .single()
+          // Kode → anlegg via koder-tabellen (fylles fra FireCtrl), med fallback til anlegg.unik_kode
+          const { data: rad, error } = await supabase
+            .rpc('anlegg_for_kode', { p_kode: kode })
+            .maybeSingle()
 
-          if (error && error.code !== 'PGRST116') {
+          if (error) {
             throw error
           }
+          const data = rad as Anlegg | null
 
           if (data) {
             setAnlegg(data)
             await hentPdfDokumenter(data.id)
           } else {
-            // Koden finnes ikke i anlegg-tabellen, sjekk om den finnes i ledige_koder
+            // Ukjent eller ukoblet etikett. Teknikeren kobler den i FireCtrl; gammel manuell
+            // registrering finnes fortsatt for koder fra den gamle bunken (ledige_koder).
             const { data: ledigKode } = await supabase
               .from('ledige_koder')
               .select('unik_kode')
               .eq('unik_kode', kode)
-              .single()
-
-            if (ledigKode) {
-              // Koden finnes som ledig kode, vis registreringsskjema
-              setIsRegistering(true)
-            } else {
-              setError('Ugyldig kode')
-            }
+              .maybeSingle()
+            setKanRegistrereManuelt(Boolean(ledigKode))
+            setIsRegistering(true)
           }
         } catch (err) {
           console.error('Feil ved henting av anlegg:', err)
@@ -236,6 +235,38 @@ function AnleggContent() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Feil</h1>
           <p className="text-gray-600">{error}</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (isRegistering && !visManuell) {
+    const firectrlUrl = (process.env.NEXT_PUBLIC_FIRECTRL_URL || 'https://app.firectrl.no').replace(/\/$/, '')
+    return (
+      <main className="min-h-screen p-8 bg-white">
+        <div className="max-w-xl mx-auto text-center space-y-6">
+          <div className="inline-flex w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 items-center justify-center text-2xl font-bold">?</div>
+          <h1 className="text-2xl font-bold text-gray-900">Denne etiketten er ikke tatt i bruk ennå</h1>
+          <p className="text-gray-600">
+            Kode <span className="font-mono font-semibold text-gray-900">{kode}</span> er ikke koblet til noe anlegg.
+            Hvis etiketten nettopp ble hengt opp, kobler teknikeren den til anlegget i FireCtrl – prøv igjen om litt.
+          </p>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 text-left space-y-3">
+            <p className="text-sm font-semibold text-gray-900">Er du tekniker fra BSV?</p>
+            <p className="text-sm text-gray-600">Koble etiketten til riktig anlegg her. Du blir bedt om å logge inn i FireCtrl.</p>
+            <a href={`${firectrlUrl}/qr/${kode}`}
+              className="inline-flex items-center justify-center w-full px-5 py-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">
+              Koble i FireCtrl
+            </a>
+          </div>
+          {kanRegistrereManuelt && (
+            <button type="button" onClick={() => setVisManuell(true)} className="text-sm text-gray-500 underline hover:text-gray-700">
+              Registrer anlegget manuelt (gammel metode)
+            </button>
+          )}
+          <p className="text-sm text-gray-500">
+            Kunde? Ta kontakt med <a href="https://bsvfire.no/kontakt-oss/" className="text-indigo-600 underline">BSV Fire</a> hvis etiketten ikke virker.
+          </p>
         </div>
       </main>
     )

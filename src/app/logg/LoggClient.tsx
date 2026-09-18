@@ -51,10 +51,9 @@ export default function LoggClient() {
       try {
         // Hent anlegg_id basert på kode
         const { data: anlegg, error: anleggError } = await supabase
-          .from("anlegg")
+          .rpc("anlegg_for_kode", { p_kode: anleggKode })
           .select("id")
-          .eq("unik_kode", anleggKode)
-          .single();
+          .maybeSingle();
         if (anleggError || !anlegg) {
           setError("Fant ikke anlegg for oppgitt kode.");
           setLoading(false);

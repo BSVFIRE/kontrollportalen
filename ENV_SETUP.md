@@ -36,3 +36,15 @@ openssl rand -base64 32
 Eller bruk: https://generate-random.org/api-key-generator
 
 **Samme API key må også legges inn i Firebase_BSVFire `.env.local`**
+
+## FireCtrl-kobling (QR-etiketter)
+
+Når noen skanner en etikett som ikke er koblet, viser portalen en lenke til FireCtrl der
+teknikeren kobler den. Sett adressen til FireCtrl-appen:
+
+```
+NEXT_PUBLIC_FIRECTRL_URL=https://<din-fireCtrl-adresse>
+```
+
+FireCtrl sender koblinger til `POST /api/koder/koble` med `x-api-key: FIREBASE_SYNC_API_KEY`
+(samme nøkkel som før).

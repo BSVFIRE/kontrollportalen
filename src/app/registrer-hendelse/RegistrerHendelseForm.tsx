@@ -60,10 +60,9 @@ function RegistrerHendelseContent() {
     if (anleggKode) {
       console.log('Prøver å hente anlegg med kode:', anleggKode);
       supabase
-        .from('anlegg')
+        .rpc('anlegg_for_kode', { p_kode: anleggKode })
         .select('id')
-        .eq('unik_kode', anleggKode)
-        .single()
+        .maybeSingle()
         .then(({ data, error }) => {
           console.log('Resultat fra supabase:', { data, error });
           if (error) {

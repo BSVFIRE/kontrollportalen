@@ -24,10 +24,8 @@ export default function AnleggForm() {
 
     try {
       const { data: anlegg, error } = await supabase
-        .from('anlegg')
-        .select('*')
-        .eq('unik_kode', kode)
-        .single()
+        .rpc('anlegg_for_kode', { p_kode: kode })
+        .maybeSingle()
 
       if (error) throw error
 
